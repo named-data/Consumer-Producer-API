@@ -1,0 +1,103 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+from waflib import Logs, Utils, Context
+import os
+
+VERSION = '0.1'
+APPNAME = 'consumerproducer'
+
+def options(opt):
+    opt.load(['compiler_c', 'compiler_cxx', 'gnu_dirs'])
+    opt.load(['boost', 'doxygen', 'sphinx_build', 'default-compiler-flags',
+              'pch'],
+             tooldir=['.waf-tools'])
+
+    syncopt = opt.add_option_group ("Consumer-Producer-API Options")
+
+    syncopt.add_option('--debug', action='store_true', default=False, dest='debug',
+                       help='''debugging mode''')
+    syncopt.add_option('--with-log4cxx', action='store_true', default=False, dest='log4cxx',
+                       help='''Compile with log4cxx''')
+    syncopt.add_option('--with-examples', action='store_true', default=False, dest='_examples',
+                       help='''build examples''')
+
+def configure(conf):
+    conf.load(['compiler_c', 'compiler_cxx', 'gnu_dirs', 'boost', 'pch',
+               'doxygen', 'sphinx_build', 'default-compiler-flags'])
+
+    conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'],
+                   uselib_store='NDN_CXX', mandatory=True)
+
+    boost_libs = 'system thread iostreams'
+    if conf.options._examples:
+        conf.env['Consumer_Producer_API_HAVE_EXAMPLES'] = 1
+        conf.define('Consumer_Producer_API_HAVE_EXAMPLES', 1);
+
+    conf.check_boost(lib=boost_libs)
+
+    if conf.options.log4cxx:
+        conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
+                       mandatory=True)
+
+    conf.write_config_header('config.hpp')
+
+def build(bld):
+    libconsumerproducer = bld(
+        target='consumerproducer',
+        features=['cxx', 'cxxshlib'],
+        source =  bld.path.ant_glob(['src/**/*.cpp', 'src/**/*.proto']),
+        use = 'BOOST NDN_CXX LOG4CXX',
+        includes = ['src', '.'],
+        export_includes=['src', '.'],
+        )
+
+    # Examples
+    if bld.env["Consumer_Producer_API_HAVE_EXAMPLES"]:
+        bld.recurse('examples')
+
+    bld.install_files(
+        dest = '%s/Consumer-Producer-API' % bld.env['INCLUDEDIR'],
+        files = bld.path.ant_glob(['src/**/*.hpp', 'src/**/*.h', 'common.hpp']),
+        cwd = bld.path.find_dir("src"),
+        relative_trick = False,
+        )
+
+    bld.install_files(
+        dest = "%s/Consumer-Producer-API" % bld.env['INCLUDEDIR'],
+        files = bld.path.get_bld().ant_glob(['src/**/*.hpp', 'src/**/*.h', 'common.hpp', 'config.hpp']),
+        cwd = bld.path.get_bld().find_dir("src"),
+        relative_trick = False,
+        )
+
+    pc = bld(
+        features = "subst",
+        source='Consumer-Producer-API.pc.in',
+        target='Consumer-Producer-API.pc',
+        install_path = '${LIBDIR}/pkgconfig',
+        PREFIX       = bld.env['PREFIX'],
+        INCLUDEDIR   = "%s/Consumer-Producer-API" % bld.env['INCLUDEDIR'],
+        VERSION      = VERSION,
+        )
+
+def version(ctx):
+    if getattr(Context.g_module, 'VERSION_BASE', None):
+        return
+
+    Context.g_module.VERSION_BASE = Context.g_module.VERSION
+    Context.g_module.VERSION_SPLIT = [v for v in VERSION_BASE.split('.')]
+
+    try:
+        cmd = ['git', 'describe', '--match', 'Consumer-Producer-API-*']
+        p = Utils.subprocess.Popen(cmd, stdout=Utils.subprocess.PIPE,
+                                   stderr=None, stdin=None)
+        out = p.communicate()[0].strip()
+        if p.returncode == 0 and out != "":
+            Context.g_module.VERSION = out[11:]
+    except:
+        pass
+
+def dist(ctx):
+    version(ctx)
+
+def distcheck(ctx):
+    version(ctx)

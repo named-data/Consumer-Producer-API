@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: libconsumerproducer
+Description: Consumer/Producer API library
+Version: @VERSION@
+Libs: -L${libdir} -lconsumerproducer
+Cflags: -I${includedir}
+
