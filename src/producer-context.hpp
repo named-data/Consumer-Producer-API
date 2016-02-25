@@ -40,6 +40,7 @@
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/asio.hpp>
 
 #include <queue>
 #include <time.h>   // for nanosleep
