@@ -57,14 +57,14 @@ def build(bld):
 
     bld.install_files(
         dest = '%s/Consumer-Producer-API' % bld.env['INCLUDEDIR'],
-        files = bld.path.ant_glob(['src/**/*.hpp', 'src/**/*.h', 'common.hpp']),
+        files = bld.path.ant_glob(['src/**/*.hpp', 'src/**/*.h']),
         cwd = bld.path.find_dir("src"),
         relative_trick = False,
         )
 
     bld.install_files(
         dest = "%s/Consumer-Producer-API" % bld.env['INCLUDEDIR'],
-        files = bld.path.get_bld().ant_glob(['src/**/*.hpp', 'src/**/*.h', 'common.hpp', 'config.hpp']),
+        files = bld.path.get_bld().ant_glob(['src/**/*.hpp', 'src/**/*.h', 'config.hpp']),
         cwd = bld.path.get_bld().find_dir("src"),
         relative_trick = False,
         )

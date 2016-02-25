@@ -22,7 +22,7 @@
 #ifndef NFD_TABLE_CS_HPP
 #define NFD_TABLE_CS_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include "cs-entry.hpp"
 
 #include <boost/multi_index/member.hpp>

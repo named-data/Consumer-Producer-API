@@ -22,7 +22,7 @@
 #ifndef PRODUCER_CONTEXT_HPP
 #define PRODUCER_CONTEXT_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include "context-options.hpp"
 #include "context-default-values.hpp"
 #include "context.hpp"

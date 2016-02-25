@@ -26,7 +26,7 @@
 #ifndef RTT_ESTIMATOR_HPP
 #define RTT_ESTIMATOR_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include <ndn-cxx/util/time.hpp>
 
 namespace ndn {

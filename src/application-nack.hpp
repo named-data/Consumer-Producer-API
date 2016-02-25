@@ -22,7 +22,7 @@
 #ifndef APPLICATION_NACK_HPP
 #define APPLICATION_NACK_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include <ndn-cxx/encoding/tlv.hpp>
 #include "tlv.hpp"
 #include <ndn-cxx/util/random.hpp>

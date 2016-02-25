@@ -22,7 +22,7 @@
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include <ndn-cxx/encoding/tlv.hpp>
 #include "tlv.hpp"
 

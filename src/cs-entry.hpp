@@ -22,7 +22,7 @@
 #ifndef NFD_TABLE_CS_ENTRY_HPP
 #define NFD_TABLE_CS_ENTRY_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include <ndn-cxx/util/crypto.hpp>
 
 namespace ndn {
