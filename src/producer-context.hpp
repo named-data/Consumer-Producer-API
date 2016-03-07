@@ -36,6 +36,7 @@
 #include <ndn-cxx/management/nfd-controller.hpp>
 #include <ndn-cxx/util/scheduler.hpp>
 
+#include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
