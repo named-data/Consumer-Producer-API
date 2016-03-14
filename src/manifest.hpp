@@ -22,7 +22,7 @@
 #ifndef MANIFEST_HPP
 #define MANIFEST_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include "context.hpp"
 #include "context-options.hpp"
 #include "context-default-values.hpp"

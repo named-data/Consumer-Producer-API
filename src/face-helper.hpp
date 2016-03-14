@@ -22,7 +22,7 @@
 #ifndef FACE_HELPER_HPP
 #define FACE_HELPER_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 
 namespace ndn {
 

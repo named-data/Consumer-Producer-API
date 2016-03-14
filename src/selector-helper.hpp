@@ -23,7 +23,7 @@
 #ifndef SELECTOR_HELPER_HPP
 #define SELECTOR_HELPER_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include "context.hpp"
 #include "context-options.hpp"
 #include "context-default-values.hpp"

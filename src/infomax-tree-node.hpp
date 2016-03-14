@@ -22,7 +22,7 @@
 #ifndef TREE_NODE_HPP
 #define TREE_NODE_HPP
 
-#include "../common.hpp"
+#include "common.hpp"
 #include <unordered_map>
 
 using namespace std;
