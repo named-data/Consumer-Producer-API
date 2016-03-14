@@ -20,7 +20,7 @@
  */
 
 // correct way to include Consumer/Producer API headers
-//#include <consumerproducer/producer-context.hpp>
+//#include <Consumer-Producer-API/producer-context.hpp>
 #include "producer-context.hpp"
 #include "consumer-context.hpp"
 #include <ndn-cxx/util/time.hpp>

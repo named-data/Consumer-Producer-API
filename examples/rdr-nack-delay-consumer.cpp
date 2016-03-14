@@ -20,7 +20,7 @@
  */
 
 // correct way to include Consumer/Producer API headers
-//#include <consumerproducer/consumer-context.hpp>
+//#include <Consumer-Producer-API/consumer-context.hpp>
 #include "consumer-context.hpp"
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
