@@ -20,7 +20,7 @@
  */
 
 // correct way to include Consumer/Producer API headers
-//#include <Consumer-Producer-API/producer-context.hpp>
+// #include <Consumer-Producer-API/producer-context.hpp>
 #include "producer-context.hpp"
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
@@ -42,7 +42,7 @@ public:
 
     p.produce(emptySuffix, (uint8_t*)content.c_str(), content.size());
   }
-  
+
   void
   onNewInterest(Producer& p, const Interest& interest)
   {
@@ -65,7 +65,7 @@ main(int argc, char** argv)
                       
   p.setContextOption(CACHE_MISS,
                     (ProducerInterestCallback)bind(&CallbackContainer::onCacheMiss, &stubs, _1, _2));
-  
+
   p.attach();
     
   sleep(10); // because attach() is non-blocking

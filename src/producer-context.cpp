@@ -94,7 +94,7 @@ Producer::updateInfomaxTree()
                                 bind(&Producer::updateInfomaxTree, this));
   }
   
-  if (!m_isNewInfomaxData)
+  if (!m_isNewInfomaxData || m_infomaxType == INFOMAX_NONE)
   {
     return;
   }
@@ -403,11 +403,18 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
     dataPrefix.append(suffix);
     writeToRepo(dataPrefix, initialSegment, finalSegment - 1);
   }
-  
+
+  // if data is INFOMAX list or meta info, do not update INFOMAX tree  
+  for (unsigned int i=0; i<suffix.size(); i++) {
+    if(suffix.get(i).toUri().compare(INFOMAX_INTEREST_TAG) == 0) {
+      return;
+    }
+  }
+
   // if infomax mode is enabled
   if (m_infomaxType == INFOMAX_MERGE_PRIORITY 
       || m_infomaxType == INFOMAX_SIMPLE_PRIORITY)
-  {
+  {    
     m_isNewInfomaxData = true;
     size_t lastElement = suffix.size();
     TreeNode *prev = &m_infomaxRoot;  
@@ -671,18 +678,7 @@ Producer::setContextOption(int optionName, int optionValue)
       return OPTION_VALUE_SET;
       
     case INFOMAX_PRIORITY:
-      if (optionValue == INFOMAX_NONE)
-      {
-        m_infomaxType = INFOMAX_NONE;
-      }
-      else if (optionValue == INFOMAX_SIMPLE_PRIORITY || optionValue == INFOMAX_MERGE_PRIORITY)
-      {
         m_infomaxType = optionValue;
-        m_infomaxPrioritizer = make_shared<Prioritizer>(this);
-        //updateInfomaxTree();
-        m_scheduler->scheduleEvent( time::milliseconds(m_infomaxUpdateInterval), 
-                                bind(&Producer::updateInfomaxTree, this));
-      }
       
     case INTEREST_ENTER_CNTX:
       if (optionValue == EMPTY_CALLBACK)
@@ -788,6 +784,7 @@ Producer::setContextOption(int optionName, bool optionValue)
     case INFOMAX:
       if (optionValue == true)
       {
+        m_infomaxPrioritizer = make_shared<Prioritizer>(this);
         m_infomaxType = INFOMAX_SIMPLE_PRIORITY;
         //updateInfomaxTree();
         m_scheduler->scheduleEvent( time::milliseconds(m_infomaxUpdateInterval), 

@@ -76,6 +76,8 @@ main(int argc, char** argv)
 
   c.consume(Name());
   c.consume(Name());
+  c.consume(Name());
+  c.consume(Name());
  
   return 0;
 }

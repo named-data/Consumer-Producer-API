@@ -62,6 +62,9 @@ private:
   bool
   treeNodePointerComparator(TreeNode* i, TreeNode* j);
 
+  void
+  resetNodeStatus(TreeNode* node);
+
 private:
   Producer *m_producer;
   uint64_t m_listVersion;

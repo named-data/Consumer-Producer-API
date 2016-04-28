@@ -101,7 +101,8 @@ const ndn::Name CLIENT_CONTROL("ndn:/localhost/nfd/strategy/client-control");
 // InfoMax parameter
 #define INFOMAX_DEFAULT_LIST_SIZE 10
 #define INFOMAX_INTEREST_TAG "InfoMax"
-#define INFOMAX_DEFAULT_UPDATE_INTERVAL 5000 
+#define INFOMAX_META_INTEREST_TAG "MetaInfo"
+#define INFOMAX_DEFAULT_UPDATE_INTERVAL 5000     // 5 seconds
 
 // InfoMax prioritizer
 #define INFOMAX_NONE 0
