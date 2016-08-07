@@ -50,22 +50,24 @@ private:
   processLeavingInfoMaxInterest(Consumer&, Interest&);
 
   void
-  processPayload(Consumer&, const uint8_t*, size_t);
+  processInfoMaxInitPayload(Consumer&, const uint8_t*, size_t);
 
   void
-  processData(Consumer&, const Data&);
+  processInfoMaxInitData(Consumer&, const Data&);
 
   void
-  processLeavingInterest(Consumer&, Interest&);
+  processLeavingInfoMaxInitInterest(Consumer&, Interest&);
 
   void
   convertStringToList(std::string&);
 
 private:
-  std::list<shared_ptr<Name> > m_infoMaxList;
+  std::list< shared_ptr<Name> > m_infoMaxList;
   shared_ptr<ReliableDataRetrieval> m_rdr;
   uint64_t m_requestVersion;
   uint64_t m_requestListNum;
+  uint64_t m_maxListNum;
+  bool m_isInit;
 };
 
 } // namespace ndn

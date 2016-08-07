@@ -38,8 +38,12 @@ public:
   void
   onPacket(Producer& p, Data& data)
   {
-    std::cout << "cached " << data.getName() << std::endl;
-    std::cout << data.getContent().value() << std::endl;
+    std::cout << data;
+
+    std::string content = reinterpret_cast<const char*>(data.getContent().value());
+    content = content.substr(0, data.getContent().value_size());
+    std::cout << content << std::endl;
+    std::cout << std::endl;
   }
 };
 
@@ -55,17 +59,26 @@ main(int argc, char** argv)
                 (ProducerDataCallback)bind(&CallbackContainer::onPacket, &cb, _1, _2));
                 
   p->setContextOption(INFOMAX, true);
-  p->setContextOption(INFOMAX_PRIORITY, INFOMAX_MERGE_PRIORITY);
+  p->setContextOption(INFOMAX_PRIORITY, INFOMAX_SIMPLE_PRIORITY);  // generate only lists for the root node
+  // p->setContextOption(INFOMAX_PRIORITY, INFOMAX_MERGE_PRIORITY);  // generate lists for all sub-trees
+  // p->setContextOption(INFOMAX_UPDATE_INTERVAL, 10000);
+
   p->attach();  
 
-  std::string a = "a-content";
-  p->produce(Name("a/c"), (uint8_t*)a.c_str(), a.size());
+  std::string ac = "a/c-content";
+  p->produce(Name("a/c"), (uint8_t*)ac.c_str(), ac.size());
   
-  std::string b = "a/d-content";
-  p->produce(Name("a/d"), (uint8_t*)b.c_str(), b.size());
+  std::string bd = "a/d-content";
+  p->produce(Name("a/d"), (uint8_t*)bd.c_str(), bd.size());
 
-  std::string cd = "b/e-content";
-  p->produce(Name("b/e"), (uint8_t*)cd.c_str(), cd.size());
+  std::string be = "b/e-content";
+  p->produce(Name("b/e"), (uint8_t*)be.c_str(), be.size());
+
+  std::string cf = "c/f-content";
+  p->produce(Name("c/f"), (uint8_t*)cf.c_str(), cf.size());
+
+  std::string ag = "a/g-content";
+  p->produce(Name("a/g"), (uint8_t*)ag.c_str(), ag.size());  
 
   sleep(300);
   

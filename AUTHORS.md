@@ -4,4 +4,4 @@ Ilya Moiseenko	<iliamo@cs.ucla.edu>
 
 Consumer/Producer API contributors
 ==================
-Jongdeug Lee 		<jlee700@illinois.edu>
+Jongdeog Lee 	<jlee700@illinois.edu>

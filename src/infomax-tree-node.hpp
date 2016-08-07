@@ -23,7 +23,6 @@
 #define TREE_NODE_HPP
 
 #include "common.hpp"
-#include <unordered_map>
 
 using namespace std;
 
@@ -68,10 +67,6 @@ public:
 	 */
   vector<TreeNode *>
   getChildren();
-	/**
-	 * Function to get the map of children.
-	 */
-	// unordered_map<string, TreeNode*> getChildrenMap();
 	/**
 	 * Function to mark the TreeNode.
 	 */

@@ -29,6 +29,7 @@ InfoMaxDataRetrieval::InfoMaxDataRetrieval(Context* context)
   : DataRetrievalProtocol(context)  
   , m_requestVersion (1)
   , m_requestListNum (1)
+  , m_isInit (true)
 {
 }
 
@@ -43,8 +44,8 @@ InfoMaxDataRetrieval::processInfoMaxPayload(Consumer& c, const uint8_t* buffer, 
 {
   std::string content((char*)buffer, bufferSize);
   
-  std::cout << "REASSEMBLED " << content << std::endl;
-  std::cout << "Size " << bufferSize << std::endl;
+  // std::cout << "REASSEMBLED " << content << std::endl;
+  // std::cout << "Size " << bufferSize << std::endl;
 
   convertStringToList(content); 
 }
@@ -52,74 +53,118 @@ InfoMaxDataRetrieval::processInfoMaxPayload(Consumer& c, const uint8_t* buffer, 
 void
 InfoMaxDataRetrieval::processInfoMaxData(Consumer& c, const Data& data)
 {
-  std::cout << "LIST IN CNTX" << std::endl;
+  // std::cout << "LIST IN CNTX" << std::endl;
 }
 
 void
 InfoMaxDataRetrieval::processLeavingInfoMaxInterest(Consumer& c, Interest& interest)
 {
-  std::cout << "INFOMAX INTEREST LEAVES " << interest.toUri() << std::endl;
-}  
+  // std::cout << "INFOMAX INTEREST LEAVES " << interest.toUri() << std::endl;
+} 
 
 void
-InfoMaxDataRetrieval::processPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
+InfoMaxDataRetrieval::processInfoMaxInitPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
 {
+  // Fetching the latest version number and the total number of lists
   std::string content((char*)buffer, bufferSize);
-  
-  std::cout << "REASSEMBLED " << content << std::endl;
-  std::cout << "Size " << bufferSize << std::endl;
 
+  std::vector<std::string> metaInfo;
+  string buf;
+  stringstream ss(content);  
+
+  while (ss >> buf)
+    metaInfo.push_back(buf);
+
+  m_requestVersion = std::stoi(metaInfo[0]);
+  m_maxListNum = std::stoi(metaInfo[1]);
 }
 
 void
-InfoMaxDataRetrieval::processData(Consumer& c, const Data& data)
+InfoMaxDataRetrieval::processInfoMaxInitData(Consumer& c, const Data& data)
 {
-  std::cout << "LIST IN CNTX" << std::endl;
+  // std::cout << "METAINFO IN CNTX" << std::endl;
 }
 
 void
-InfoMaxDataRetrieval::processLeavingInterest(Consumer& c, Interest& interest)
+InfoMaxDataRetrieval::processLeavingInfoMaxInitInterest(Consumer& c, Interest& interest)
 {
-  std::cout << "INTEREST LEAVES " << interest.toUri() << std::endl;
-}  
+  // std::cout << "INFOMAX INIT INTEREST LEAVES " << interest.toUri() << std::endl;
+}   
 
 void
 InfoMaxDataRetrieval::start()
 { 
   m_rdr = make_shared<ReliableDataRetrieval>(m_context);
 
+  if (m_isInit) {
+    // Reqeust version number and the total number of lists (/prefix/InfoMax/MetaInfo)
+    m_isInit = false;
+
+    ConsumerInterestCallback processLeavingInterest;
+    ConsumerDataCallback processData;
+    ConsumerContentCallback processPayload;
+    m_context->getContextOption(INTEREST_LEAVE_CNTX, processLeavingInterest);    
+    m_context->getContextOption(DATA_ENTER_CNTX, processData);
+    m_context->getContextOption(CONTENT_RETRIEVED, processPayload);
+
+    m_context->setContextOption(MUST_BE_FRESH_S, true);  
+    m_context->setContextOption(INTEREST_LEAVE_CNTX, 
+        (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInitInterest, this, _1, _2));
+    m_context->setContextOption(DATA_ENTER_CNTX, 
+        (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitData, this, _1, _2));
+    m_context->setContextOption(CONTENT_RETRIEVED, 
+        (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitPayload, this, _1, _2, _3));
+
+    Name infomaxInitSuffix(INFOMAX_INTEREST_TAG);
+    infomaxInitSuffix.append(Name(INFOMAX_META_INTEREST_TAG));
+    m_context->setContextOption(SUFFIX, infomaxInitSuffix);  
+    m_rdr->start();
+
+    m_context->setContextOption(INTEREST_LEAVE_CNTX, processLeavingInterest);    
+    m_context->setContextOption(DATA_ENTER_CNTX, processData);
+    m_context->setContextOption(CONTENT_RETRIEVED, processPayload);
+  }
+
   if (m_infoMaxList.empty())
   { 
-    // If current list is empty, issue InfoMax interest to fetch new list         
+    if (m_requestListNum > m_maxListNum) {
+      cout << "All data fetched" << endl;
+      return ;
+    }
+
+    // If current list is empty, issue InfoMax interest to fetch new list
+    ConsumerInterestCallback processLeavingInterest;
+    ConsumerDataCallback processData;
+    ConsumerContentCallback processPayload;
+    m_context->getContextOption(INTEREST_LEAVE_CNTX, processLeavingInterest);    
+    m_context->getContextOption(DATA_ENTER_CNTX, processData);
+    m_context->getContextOption(CONTENT_RETRIEVED, processPayload); 
+
     Name infomaxSuffix(INFOMAX_INTEREST_TAG);
     infomaxSuffix.appendNumber(m_requestVersion);
     infomaxSuffix.appendNumber(m_requestListNum++);
+
     m_context->setContextOption(MUST_BE_FRESH_S, true);  
     m_context->setContextOption(INTEREST_LEAVE_CNTX, 
         (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInterest, this, _1, _2));
-    
     m_context->setContextOption(DATA_ENTER_CNTX, 
         (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxData, this, _1, _2));
-    
     m_context->setContextOption(CONTENT_RETRIEVED, 
         (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxPayload, this, _1, _2, _3));
+    m_context->setContextOption(SUFFIX, infomaxSuffix);  
 
-    m_context->setContextOption(SUFFIX, infomaxSuffix);    
+    m_context->setContextOption(RUNNING, false);
     m_rdr->start();
-  }
-  else
-  {
-    m_context->setContextOption(INTEREST_LEAVE_CNTX, 
-        (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInterest, this, _1, _2));    
-    m_context->setContextOption(DATA_ENTER_CNTX, 
-        (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processData, this, _1, _2));
-    m_context->setContextOption(CONTENT_RETRIEVED, 
-        (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processPayload, this, _1, _2, _3));
 
-    m_context->setContextOption(SUFFIX, *(m_infoMaxList.front()));
-    m_rdr->start();
-    m_infoMaxList.pop_front();
+    m_context->setContextOption(INTEREST_LEAVE_CNTX, processLeavingInterest);    
+    m_context->setContextOption(DATA_ENTER_CNTX, processData);
+    m_context->setContextOption(CONTENT_RETRIEVED, processPayload);
   }
+
+  m_context->setContextOption(RUNNING, false);
+  m_context->setContextOption(SUFFIX, *(m_infoMaxList.front()));
+  m_rdr->start();
+  m_infoMaxList.pop_front();  
 }
 
 void
