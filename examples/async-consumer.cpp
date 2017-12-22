@@ -33,7 +33,9 @@ namespace examples {
 class CallbackContainer
 {
 public:
-  CallbackContainer(){}
+  CallbackContainer()
+  {
+  }
 
   void
   processPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
@@ -70,66 +72,51 @@ main(int argc, char** argv)
   c1.setContextOption(MUST_BE_FRESH_S, true);
   //c1.setContextOption(FORWARDING_STRATEGY, BROADCAST);
 
-  c1.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c1.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c1.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c1.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c1.setContextOption(CONTENT_RETRIEVED,
-          (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c1.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   Consumer c2(Name("/t/y/u"), RDR);
   c2.setContextOption(MUST_BE_FRESH_S, true);
   //c2.setContextOption(FORWARDING_STRATEGY, BROADCAST);
 
-  c2.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c2.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c2.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c2.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c2.setContextOption(CONTENT_RETRIEVED,
-          (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c2.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   Consumer c3(Name("/a/s/d"), RDR);
   c3.setContextOption(MUST_BE_FRESH_S, true);
   //c3.setContextOption(FORWARDING_STRATEGY, BROADCAST);
 
-  c3.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c3.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c3.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c3.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c3.setContextOption(CONTENT_RETRIEVED,
-          (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c3.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   Consumer c4(Name("/g/h/j"), RDR);
   c4.setContextOption(MUST_BE_FRESH_S, true);
   //c4.setContextOption(FORWARDING_STRATEGY, BROADCAST);
 
-  c4.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c4.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c4.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c4.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c4.setContextOption(CONTENT_RETRIEVED,
-          (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c4.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   Consumer c5(Name("/b/n/m"), RDR);
   c5.setContextOption(MUST_BE_FRESH_S, true);
   //c5.setContextOption(FORWARDING_STRATEGY, BROADCAST);
 
-  c5.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c5.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c5.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c5.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c5.setContextOption(CONTENT_RETRIEVED,
-          (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c5.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   c1.asyncConsume(Name());
   c2.asyncConsume(Name());

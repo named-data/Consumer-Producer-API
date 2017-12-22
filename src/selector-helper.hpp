@@ -24,9 +24,9 @@
 #define SELECTOR_HELPER_HPP
 
 #include "common.hpp"
-#include "context.hpp"
-#include "context-options.hpp"
 #include "context-default-values.hpp"
+#include "context-options.hpp"
+#include "context.hpp"
 
 namespace ndn {
 
@@ -34,10 +34,9 @@ class SelectorHelper
 {
 public:
   static void
-  applySelectors(Interest& interest, Context* m_context); 
+  applySelectors(Interest& interest, Context* m_context);
 };
 
 } //namespace ndn
 
 #endif // SELECTOR_HELPER_HPP
-

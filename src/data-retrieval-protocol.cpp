@@ -41,4 +41,4 @@ DataRetrievalProtocol::isRunning()
   return m_isRunning;
 }
 
-} //namespace nfd
+} // namespace ndn

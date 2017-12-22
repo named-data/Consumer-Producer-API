@@ -34,7 +34,7 @@ class Entry;
 class Entry : noncopyable
 {
 public:
-  typedef std::map<int, std::list<Entry*>::iterator > LayerIterators;
+  typedef std::map<int, std::list<Entry*>::iterator> LayerIterators;
 
   Entry();
 
@@ -121,8 +121,7 @@ private:
   LayerIterators m_layerIterators;
 };
 
-inline
-Entry::Entry()
+inline Entry::Entry()
 {
 }
 
@@ -157,6 +156,6 @@ Entry::getIterators() const
 }
 
 } // namespace cs
-} // namespace nfd
+} // namespace ndn
 
 #endif // NFD_TABLE_CS_ENTRY_HPP

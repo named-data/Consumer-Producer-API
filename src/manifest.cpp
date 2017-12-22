@@ -26,8 +26,7 @@ namespace ndn {
 // BOOST_CONCEPT_ASSERT((WireEncodable<Manifest>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Manifest>));
 // BOOST_CONCEPT_ASSERT((WireDecodable<Manifest>));
-static_assert(std::is_base_of<tlv::Error, Manifest::Error>::value,
-              "Manifest::Error must inherit from tlv::Error");
+static_assert(std::is_base_of<tlv::Error, Manifest::Error>::value, "Manifest::Error must inherit from tlv::Error");
 
 Manifest::Manifest()
 {
@@ -68,14 +67,12 @@ Manifest::addKeyValuePair(std::string key, std::string value)
 std::string
 Manifest::getValueByKey(std::string key)
 {
-  std::map<std::string,std::string>::const_iterator it = m_keyValuePairs.find(key);
+  std::map<std::string, std::string>::const_iterator it = m_keyValuePairs.find(key);
 
-  if (it == m_keyValuePairs.end())
-  {
+  if (it == m_keyValuePairs.end()) {
     return "";
   }
-  else
-  {
+  else {
     return it->second;
   }
 }
@@ -120,16 +117,14 @@ Manifest::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
   size_t catalogueLength = 0;
 
-  for (std::map<std::string, std::string>::const_reverse_iterator it = m_keyValuePairs.rbegin();
-       it != m_keyValuePairs.rend(); ++it) {
+  for (std::map<std::string, std::string>::const_reverse_iterator it = m_keyValuePairs.rbegin(); it != m_keyValuePairs.rend(); ++it) {
     std::string keyValue = it->first + "=" + it->second;
     totalLength += encoder.prependByteArray(reinterpret_cast<const uint8_t*>(keyValue.c_str()), keyValue.size());
     totalLength += encoder.prependVarNumber(keyValue.size());
     totalLength += encoder.prependVarNumber(tlv::KeyValuePair);
   }
 
-  for (std::list<Name>::const_reverse_iterator it = m_catalogueNames.rbegin();
-       it != m_catalogueNames.rend(); ++it) {
+  for (std::list<Name>::const_reverse_iterator it = m_catalogueNames.rbegin(); it != m_catalogueNames.rend(); ++it) {
     size_t blockSize = encoder.prependBlock(it->wireEncode());
     totalLength += blockSize;
     catalogueLength += blockSize;
@@ -171,24 +166,18 @@ Manifest::decode()
   //                  Name*
   //                KeyValuePair*
 
-  for ( Block::element_const_iterator val = content.elements_begin();
-                                      val != content.elements_end(); ++val)
-  {
-    if (val->type() == tlv::ManifestCatalogue)
-    {
+  for (Block::element_const_iterator val = content.elements_begin(); val != content.elements_end(); ++val) {
+    if (val->type() == tlv::ManifestCatalogue) {
       val->parse();
-      for ( Block::element_const_iterator catalogueNameElem = val->elements_begin();
-                      catalogueNameElem != val->elements_end(); ++catalogueNameElem)
-      {
-        if (catalogueNameElem->type() == tlv::Name)
-        {
+      for (Block::element_const_iterator catalogueNameElem = val->elements_begin(); catalogueNameElem != val->elements_end();
+           ++catalogueNameElem) {
+        if (catalogueNameElem->type() == tlv::Name) {
           Name name(*catalogueNameElem);
           m_catalogueNames.push_back(name);
         }
       }
     }
-    else if (val->type() == tlv::KeyValuePair)
-    {
+    else if (val->type() == tlv::KeyValuePair) {
       std::string str((char*)val->value(), val->value_size());
 
       size_t index = str.find_first_of('=');

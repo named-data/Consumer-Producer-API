@@ -30,13 +30,9 @@ namespace tlv {
 
 using namespace ndn::tlv;
 
-enum {
-  ContentType_Manifest = 4,
-  ManifestCatalogue  = 128,
-  KeyValuePair  = 129
-};
+enum { ContentType_Manifest = 4, ManifestCatalogue = 128, KeyValuePair = 129 };
 
-} // tlv
-} // ndn
+} // namespace tlv
+} // namespace ndn
 
 #endif // CONSUMER_PRODUCER_TLV_HPP

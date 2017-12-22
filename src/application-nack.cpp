@@ -26,8 +26,7 @@ namespace ndn {
 // BOOST_CONCEPT_ASSERT((WireEncodable<ApplicationNack>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<ApplicationNack>));
 // BOOST_CONCEPT_ASSERT((WireDecodable<ApplicationNack>));
-static_assert(std::is_base_of<tlv::Error, ApplicationNack::Error>::value,
-              "ApplicationNack::Error must inherit from tlv::Error");
+static_assert(std::is_base_of<tlv::Error, ApplicationNack::Error>::value, "ApplicationNack::Error must inherit from tlv::Error");
 
 // NACK Headers
 const std::string STATUS_CODE_H = "Status-code";
@@ -77,14 +76,12 @@ ApplicationNack::addKeyValuePair(std::string key, std::string value)
 std::string
 ApplicationNack::getValueByKey(std::string key)
 {
-  std::map<std::string,std::string>::const_iterator it = m_keyValuePairs.find(key);
+  std::map<std::string, std::string>::const_iterator it = m_keyValuePairs.find(key);
 
-  if (it == m_keyValuePairs.end())
-  {
+  if (it == m_keyValuePairs.end()) {
     return "";
   }
-  else
-  {
+  else {
     return it->second;
   }
 }
@@ -109,19 +106,15 @@ ApplicationNack::getCode()
 {
   std::string value = getValueByKey(STATUS_CODE_H);
 
-  if (value != "")
-  {
-    try
-    {
+  if (value != "") {
+    try {
       return (ApplicationNack::NackCode)atoi(value.c_str());
     }
-    catch(std::exception e)
-    {
+    catch (std::exception e) {
       return ApplicationNack::NONE;
     }
   }
-  else
-  {
+  else {
     return ApplicationNack::NONE;
   }
 }
@@ -151,8 +144,7 @@ ApplicationNack::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  for (std::map<std::string, std::string>::const_reverse_iterator it = m_keyValuePairs.rbegin();
-       it != m_keyValuePairs.rend(); ++it) {
+  for (std::map<std::string, std::string>::const_reverse_iterator it = m_keyValuePairs.rbegin(); it != m_keyValuePairs.rend(); ++it) {
     std::string keyValue = it->first + "=" + it->second;
     totalLength += encoder.prependByteArray(reinterpret_cast<const uint8_t*>(keyValue.c_str()), keyValue.size());
     totalLength += encoder.prependVarNumber(keyValue.size());

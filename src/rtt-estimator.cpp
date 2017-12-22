@@ -48,7 +48,8 @@ RttEstimator::addMeasurement(Duration measure)
     m_rtt += gErr;
     double difference = std::abs(err) - m_variance;
     m_variance += difference * m_gain;
-  } else {
+  }
+  else {
     m_rtt = m;
     m_variance = m;
   }

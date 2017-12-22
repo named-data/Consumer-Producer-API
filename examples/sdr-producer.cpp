@@ -33,7 +33,9 @@ namespace examples {
 class CallbackContainer
 {
 public:
-  CallbackContainer(){}
+  CallbackContainer()
+  {
+  }
 
   void
   onCacheMiss(Producer& p, const Interest& interest)
@@ -62,11 +64,9 @@ main(int argc, char** argv)
   Producer p(sampleName);
 
   //setting callbacks
-  p.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onNewInterest, &stubs, _1, _2));
+  p.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onNewInterest, &stubs, _1, _2));
 
-  p.setContextOption(CACHE_MISS,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onCacheMiss, &stubs, _1, _2));
+  p.setContextOption(CACHE_MISS, (ProducerInterestCallback)bind(&CallbackContainer::onCacheMiss, &stubs, _1, _2));
 
   p.attach();
 

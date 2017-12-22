@@ -22,9 +22,9 @@
 #ifndef SIMPLE_DATA_RETRIEVAL_HPP
 #define SIMPLE_DATA_RETRIEVAL_HPP
 
-#include "data-retrieval-protocol.hpp"
-#include "context-options.hpp"
 #include "context-default-values.hpp"
+#include "context-options.hpp"
+#include "data-retrieval-protocol.hpp"
 #include "selector-helper.hpp"
 
 namespace ndn {

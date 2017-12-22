@@ -21,12 +21,12 @@
 
 // correct way to include Consumer/Producer API headers
 //#include <Consumer-Producer-API/consumer-context.hpp>
-#include "producer-context.hpp"
 #include "consumer-context.hpp"
+#include "producer-context.hpp"
 
-#include <ndn-cxx/util/time.hpp>
-#include <ndn-cxx/security/verification-helpers.hpp>
 #include <ndn-cxx/security/pib/key.hpp>
+#include <ndn-cxx/security/verification-helpers.hpp>
+#include <ndn-cxx/util/time.hpp>
 
 #include <iostream>
 
@@ -35,14 +35,14 @@ namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
 namespace examples {
 
-#define CONTENT_LENGTH 1*1024*1024
+#define CONTENT_LENGTH 1 * 1024 * 1024
 #define IDENTITY_NAME "/manifest/performance"
 
 class Performance
 {
 public:
   Performance()
-  : m_byteCounter(0)
+    : m_byteCounter(0)
   {
   }
 
@@ -67,8 +67,7 @@ public:
   {
     m_byteCounter += bufferSize;
     std::cout << "GOT" << m_byteCounter << " BYTES" << std::endl;
-    if (m_byteCounter == CONTENT_LENGTH)
-    {
+    if (m_byteCounter == CONTENT_LENGTH) {
       std::cout << "DONE" << std::endl;
       m_reassemblyStop = time::system_clock::now();
     }
@@ -97,13 +96,11 @@ public:
   bool
   onPacket(Consumer& c, const Data& data)
   {
-    if (security::verifySignature(data, m_key))
-    {
+    if (security::verifySignature(data, m_key)) {
       std::cout << "VERIFIED " << data.getName() << std::endl;
       return true;
     }
-    else
-    {
+    else {
       std::cout << "UNVERIFIED " << data.getName() << std::endl;
       return false;
     }
@@ -126,17 +123,13 @@ main(int argc, char** argv)
   Consumer c(sampleName, RDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
 
-  c.setContextOption(DATA_ENTER_CNTX,
-              (ConsumerDataCallback)bind(&Performance::onDataEnters, &performance, _1, _2));
+  c.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&Performance::onDataEnters, &performance, _1, _2));
 
-  c.setContextOption(INTEREST_LEAVE_CNTX,
-                (ConsumerInterestCallback)bind(&Performance::onInterestLeaves, &performance, _1, _2));
+  c.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&Performance::onInterestLeaves, &performance, _1, _2));
 
-  c.setContextOption(DATA_TO_VERIFY,
-              (ConsumerDataVerificationCallback)bind(&Verificator::onPacket, &verificator, _1, _2));
+  c.setContextOption(DATA_TO_VERIFY, (ConsumerDataVerificationCallback)bind(&Verificator::onPacket, &verificator, _1, _2));
 
-  c.setContextOption(CONTENT_RETRIEVED,
-              (ConsumerContentCallback)bind(&Performance::onContent, &performance, _1, _2, _3));
+  c.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&Performance::onContent, &performance, _1, _2, _3));
 
   c.consume(Name());
 

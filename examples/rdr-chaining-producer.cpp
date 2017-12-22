@@ -34,30 +34,28 @@ class CallbackContainer
 {
 public:
   CallbackContainer()
-  : m_interestCounter(0)
-  {}
+    : m_interestCounter(0)
+  {
+  }
 
   void
   processInterest(Producer& p, const Interest& interest)
   {
     m_interestCounter++;
 
-    if (m_interestCounter == 1)
-    {
+    if (m_interestCounter == 1) {
       ApplicationNack appNack(interest, ApplicationNack::PRODUCER_DELAY);
       appNack.setDelay(5000); // in ms
       p.nack(appNack);
     }
-    else if (m_interestCounter == 2)
-    {
+    else if (m_interestCounter == 2) {
       std::cout << "REPLY TO " << interest.toUri() << std::endl;
       std::string content = "RELIABLE ECHO z";
       Name emptySuffix;
 
       p.produce(Name("z"), (uint8_t*)content.c_str(), content.size());
     }
-    else
-    {
+    else {
       std::cout << "REPLY TO " << interest.toUri() << std::endl;
       std::string content = "RELIABLE ECHO zzz";
       Name emptySuffix;
@@ -86,11 +84,9 @@ main(int argc, char** argv)
   Producer p(sampleName);
 
   //setting callbacks
-  p.setContextOption(INTEREST_ENTER_CNTX,
-        (ProducerInterestCallback)bind(&CallbackContainer::processIncomingInterest, &stubs, _1, _2));
+  p.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::processIncomingInterest, &stubs, _1, _2));
 
-  p.setContextOption(CACHE_MISS,
-                (ProducerInterestCallback)bind(&CallbackContainer::processInterest, &stubs, _1, _2));
+  p.setContextOption(CACHE_MISS, (ProducerInterestCallback)bind(&CallbackContainer::processInterest, &stubs, _1, _2));
 
   p.attach();
 

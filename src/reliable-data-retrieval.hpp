@@ -23,8 +23,8 @@
 #define RELIABLE_DATA_RETRIEVAL_HPP
 
 #include "data-retrieval-protocol.hpp"
-#include "selector-helper.hpp"
 #include "rtt-estimator.hpp"
+#include "selector-helper.hpp"
 
 namespace ndn {
 
@@ -69,7 +69,6 @@ public:
   stop();
 
 private:
-
   void
   sendInterest();
 
@@ -107,8 +106,7 @@ private:
   retransmitInterestWithExclude(const Interest& interest, const Data& dataSegment);
 
   bool
-  retransmitInterestWithDigest(const Interest& interest, const Data& dataSegment,
-                               const Manifest& manifestSegment);
+  retransmitInterestWithDigest(const Interest& interest, const Data& dataSegment, const Manifest& manifestSegment);
 
   bool
   verifySegmentWithManifest(const Manifest& manifestSegment, const Data& dataSegment);
@@ -146,16 +144,16 @@ private:
   int m_currentWindowSize;
   int m_interestsInFlight;
   uint64_t m_segNumber;
-  std::unordered_map<uint64_t, int> m_interestRetransmissions; // by segment number
-  std::unordered_map<uint64_t, const PendingInterestId*> m_expressedInterests; // by segment number
-  std::unordered_map<uint64_t, EventId> m_scheduledInterests; // by segment number
+  std::unordered_map<uint64_t, int> m_interestRetransmissions;                       // by segment number
+  std::unordered_map<uint64_t, const PendingInterestId*> m_expressedInterests;       // by segment number
+  std::unordered_map<uint64_t, EventId> m_scheduledInterests;                        // by segment number
   std::unordered_map<uint64_t, time::steady_clock::time_point> m_interestTimepoints; // by segment
   RttEstimator m_rttEstimator;
 
   // buffers
-  std::map<uint64_t, shared_ptr<const Data> > m_receiveBuffer; // verified segments by segment number
-  std::map<uint64_t, shared_ptr<const Data> > m_unverifiedSegments; // used with embedded manifests
-  std::map<uint64_t, shared_ptr<const Manifest> > m_verifiedManifests; // by segment number
+  std::map<uint64_t, shared_ptr<const Data>> m_receiveBuffer;         // verified segments by segment number
+  std::map<uint64_t, shared_ptr<const Data>> m_unverifiedSegments;    // used with embedded manifests
+  std::map<uint64_t, shared_ptr<const Manifest>> m_verifiedManifests; // by segment number
 
   // Fast Retransmission
   std::map<uint64_t, bool> m_receivedSegments;

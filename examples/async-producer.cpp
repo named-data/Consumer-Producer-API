@@ -52,36 +52,31 @@ main(int argc, char** argv)
   CallbackContainer c;
 
   Producer p1(Name("/q/w/e"));
-  p1.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP1, &c, _1, _2));
+  p1.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP1, &c, _1, _2));
   p1.attach();
   uint8_t* content1 = new uint8_t[100000];
   p1.produce(Name(), content1, 100000);
 
   Producer p2(Name("/t/y/u"));
-  p2.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
+  p2.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
   p2.attach();
   uint8_t* content2 = new uint8_t[100000];
   p2.produce(Name(), content2, 100000);
 
   Producer p3(Name("/a/s/d"));
-  p3.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
+  p3.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
   p3.attach();
   uint8_t* content3 = new uint8_t[100000];
   p3.produce(Name(), content3, 100000);
 
   Producer p4(Name("/g/h/j"));
-  p4.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
+  p4.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
   p4.attach();
   uint8_t* content4 = new uint8_t[100000];
   p4.produce(Name(), content4, 100000);
 
   Producer p5(Name("/b/n/m"));
-  p5.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
+  p5.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
   p5.attach();
   uint8_t* content5 = new uint8_t[100000];
   p5.produce(Name(), content5, 100000);

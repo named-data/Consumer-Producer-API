@@ -70,11 +70,10 @@ Entry::updateStaleTime()
 const ndn::ConstBufferPtr&
 Entry::getDigest() const
 {
-  if (!static_cast<bool>(m_digest))
-    {
-      const Block& block = m_dataPacket->wireEncode();
-      m_digest = util::Sha256::computeDigest(block.wire(), block.size());
-    }
+  if (!static_cast<bool>(m_digest)) {
+    const Block& block = m_dataPacket->wireEncode();
+    m_digest = util::Sha256::computeDigest(block.wire(), block.size());
+  }
 
   return m_digest;
 }
@@ -97,4 +96,4 @@ Entry::printIterators() const
 }
 
 } // namespace cs
-} // namespace nfd
+} // namespace ndn

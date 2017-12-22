@@ -34,9 +34,9 @@ class CallbackContainer
 {
 public:
   CallbackContainer()
-  : m_seenManifestSegments(0)
-  , m_seenDataSegments(0)
-  , m_byteCounter(0)
+    : m_seenManifestSegments(0)
+    , m_seenDataSegments(0)
+    , m_byteCounter(0)
   {
   }
 
@@ -44,7 +44,7 @@ public:
   processPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
   {
     std::string content((char*)buffer, bufferSize);
-    m_byteCounter+=bufferSize;
+    m_byteCounter += bufferSize;
     std::cout << "REASSEMBLED " << content << std::endl;
 
     std::cout << "**************************************************" << std::endl;
@@ -57,13 +57,11 @@ public:
   {
     std::cout << "DATA IN CNTX" << std::endl;
 
-    if (data.getContentType() == CONTENT_DATA_TYPE)
-    {
+    if (data.getContentType() == CONTENT_DATA_TYPE) {
       m_seenDataSegments++;
       std::cout << "Saw Content segment" << data.getName().get(-1) << std::endl;
     }
-    else if (data.getContentType() == MANIFEST_DATA_TYPE)
-    {
+    else if (data.getContentType() == MANIFEST_DATA_TYPE) {
       m_seenManifestSegments++;
       std::cout << "Saw Manifest segment" << data.getName().get(-1) << std::endl;
     }
@@ -102,17 +100,13 @@ main(int argc, char** argv)
   Consumer c(sampleName, RDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
 
-  c.setContextOption(INTEREST_LEAVE_CNTX,
-        (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c.setContextOption(DATA_TO_VERIFY,
-        (ConsumerDataVerificationCallback)bind(&CallbackContainer::verifyData, &stubs, _1, _2));
+  c.setContextOption(DATA_TO_VERIFY, (ConsumerDataVerificationCallback)bind(&CallbackContainer::verifyData, &stubs, _1, _2));
 
-  c.setContextOption(DATA_ENTER_CNTX,
-        (ConsumerDataCallback)bind(&CallbackContainer::countData, &stubs, _1, _2));
+  c.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::countData, &stubs, _1, _2));
 
-  c.setContextOption(CONTENT_RETRIEVED,
-        (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   c.consume(Name());
 

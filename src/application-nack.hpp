@@ -38,12 +38,7 @@ public:
     using tlv::Error::Error;
   };
 
-  enum NackCode {
-    NONE = 0,
-    PRODUCER_DELAY = 1,
-    DATA_NOT_AVAILABLE = 2,
-    INTEREST_NOT_VERIFIED = 3
-  };
+  enum NackCode { NONE = 0, PRODUCER_DELAY = 1, DATA_NOT_AVAILABLE = 2, INTEREST_NOT_VERIFIED = 3 };
 
   /**
    * Default constructor.
@@ -58,8 +53,7 @@ public:
   /**
    * Constructor performing upcasting from Data to ApplicationNack
    */
-  explicit
-  ApplicationNack(const Data& data);
+  explicit ApplicationNack(const Data& data);
 
   ~ApplicationNack();
 

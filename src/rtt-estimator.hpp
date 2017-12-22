@@ -52,9 +52,7 @@ public:
     return time::seconds(1);
   }
 
-  RttEstimator(uint16_t maxMultiplier = 16,
-               Duration minRto = time::milliseconds(1),
-               double gain = 0.1);
+  RttEstimator(uint16_t maxMultiplier = 16, Duration minRto = time::milliseconds(1), double gain = 0.1);
 
   void
   addMeasurement(Duration measure);

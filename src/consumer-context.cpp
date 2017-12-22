@@ -28,7 +28,7 @@ namespace ndn {
 Consumer::Consumer(Name prefix, int protocol)
   : m_isRunning(false)
   , m_prefix(prefix)
-  , m_interestLifetimeMillisec(DEFAULT_INTEREST_LIFETIME)
+  , m_interestLifetimeMillisec(DEFAULT_INTEREST_LIFETIME_API)
   , m_minWindowSize(DEFAULT_MIN_WINDOW_SIZE)
   , m_maxWindowSize(DEFAULT_MAX_WINDOW_SIZE)
   , m_currentWindowSize(-1)
@@ -53,20 +53,16 @@ Consumer::Consumer(Name prefix, int protocol)
   //m_ioService = ndn::make_shared<boost::asio::io_service>();
   m_controller = ndn::make_shared<nfd::Controller>(*m_face, m_keyChain);
 
-  if (protocol == UDR)
-  {
+  if (protocol == UDR) {
     m_dataRetrievalProtocol = make_shared<UnreliableDataRetrieval>(this);
   }
-  else if (protocol == RDR)
-  {
+  else if (protocol == RDR) {
     m_dataRetrievalProtocol = make_shared<ReliableDataRetrieval>(this);
   }
-  else if (protocol == IDR)
-  {
+  else if (protocol == IDR) {
     m_dataRetrievalProtocol = make_shared<InfoMaxDataRetrieval>(this);
   }
-  else
-  {
+  else {
     m_dataRetrievalProtocol = make_shared<SimpleDataRetrieval>(this);
   }
 }
@@ -74,23 +70,21 @@ Consumer::Consumer(Name prefix, int protocol)
 Consumer::~Consumer()
 {
   stop();
-  m_dataRetrievalProtocol.reset();  // reset the pointer counter
-  m_face.reset(); // reset the pointer counter
+  m_dataRetrievalProtocol.reset(); // reset the pointer counter
+  m_face.reset();                  // reset the pointer counter
 }
 
 int
 Consumer::consume(Name suffix)
 {
-  if (m_isRunning/*m_dataRetrievalProtocol->isRunning()*/)
-  {
+  if (m_isRunning /*m_dataRetrievalProtocol->isRunning()*/) {
     // put in the schedule
     m_face->getIoService().post(bind(&Consumer::postponedConsume, this, suffix));
     return CONSUMER_BUSY;
   }
 
   // if previously used in non-blocking mode
-  if (m_isAsync)
-  {
+  if (m_isAsync) {
     m_face = ndn::make_shared<Face>();
     m_controller = ndn::make_shared<nfd::Controller>(*m_face, m_keyChain);
     m_dataRetrievalProtocol->updateFace();
@@ -107,8 +101,7 @@ void
 Consumer::postponedConsume(Name suffix)
 {
   // if previously used in non-blocking mode
-  if (m_isAsync)
-  {
+  if (m_isAsync) {
     m_face = ndn::make_shared<Face>();
     m_controller = ndn::make_shared<nfd::Controller>(*m_face, m_keyChain);
     m_dataRetrievalProtocol->updateFace();
@@ -122,8 +115,7 @@ Consumer::postponedConsume(Name suffix)
 int
 Consumer::asyncConsume(Name suffix)
 {
-  if (m_dataRetrievalProtocol->isRunning())
-  {
+  if (m_dataRetrievalProtocol->isRunning()) {
     return CONSUMER_BUSY;
   }
 
@@ -143,8 +135,7 @@ Consumer::asyncConsume(Name suffix)
 void
 Consumer::stop()
 {
-  if (m_dataRetrievalProtocol->isRunning())
-  {
+  if (m_dataRetrievalProtocol->isRunning()) {
     m_dataRetrievalProtocol->stop();
     m_face->getIoService().stop();
     m_face->getIoService().reset();
@@ -156,8 +147,7 @@ Consumer::stop()
 int
 Consumer::setContextOption(int optionName, int optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MIN_WINDOW_SIZE:
       m_minWindowSize = optionValue;
       return OPTION_VALUE_SET;
@@ -183,13 +173,11 @@ Consumer::setContextOption(int optionName, int optionValue)
       return OPTION_VALUE_SET;
 
     case INTEREST_RETX:
-      if (optionValue < CONSUMER_MAX_RETRANSMISSIONS)
-      {
+      if (optionValue < CONSUMER_MAX_RETRANSMISSIONS) {
         m_nMaxRetransmissions = optionValue;
         return OPTION_VALUE_SET;
       }
-      else
-      {
+      else {
         return OPTION_VALUE_NOT_SET;
       }
 
@@ -198,94 +186,79 @@ Consumer::setContextOption(int optionName, int optionValue)
       return OPTION_VALUE_SET;
 
     case MIN_SUFFIX_COMP_S:
-      if (optionValue >= 0)
-      {
+      if (optionValue >= 0) {
         m_minSuffixComponents = optionValue;
       }
-      else
-      {
+      else {
         m_minSuffixComponents = DEFAULT_MIN_SUFFIX_COMP;
         return OPTION_VALUE_NOT_SET;
       }
 
     case MAX_SUFFIX_COMP_S:
-      if (optionValue >= 0)
-      {
+      if (optionValue >= 0) {
         m_maxSuffixComponents = optionValue;
       }
-      else
-      {
+      else {
         m_maxSuffixComponents = DEFAULT_MAX_SUFFIX_COMP;
         return OPTION_VALUE_NOT_SET;
       }
 
     case RIGHTMOST_CHILD_S:
-      if (optionValue == 1)
-      {
+      if (optionValue == 1) {
         m_childSelector = 1;
       }
-      else
-      {
+      else {
         m_childSelector = 0;
       }
       return OPTION_VALUE_SET;
 
     case LEFTMOST_CHILD_S:
-      if (optionValue == 1)
-      {
+      if (optionValue == 1) {
         m_childSelector = 0;
       }
-      else
-      {
+      else {
         m_childSelector = 1;
       }
       return OPTION_VALUE_SET;
 
     case INTEREST_RETRANSMIT:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestRetransmitted = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case INTEREST_EXPIRED:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestExpired = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case INTEREST_SATISFIED:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestSatisfied = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case INTEREST_LEAVE_CNTX:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestToLeaveContext = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_ENTER_CNTX:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataEnteredContext = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_TO_VERIFY:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataToVerify = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case CONTENT_RETRIEVED:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onPayloadReassembled = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
@@ -298,8 +271,7 @@ Consumer::setContextOption(int optionName, int optionValue)
 int
 Consumer::setContextOption(int optionName, size_t optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case RCV_BUF_SIZE:
       m_receiveBufferSize = optionValue;
       return OPTION_VALUE_SET;
@@ -316,30 +288,25 @@ Consumer::setContextOption(int optionName, size_t optionValue)
 int
 Consumer::setContextOption(int optionName, bool optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MUST_BE_FRESH_S:
       m_mustBeFresh = optionValue;
       return OPTION_VALUE_SET;
 
     case RIGHTMOST_CHILD_S:
-      if (optionValue == true)
-      {
+      if (optionValue == true) {
         m_childSelector = 1;
       }
-      else
-      {
+      else {
         m_childSelector = 0;
       }
       return OPTION_VALUE_SET;
 
     case LEFTMOST_CHILD_S:
-      if (optionValue == true)
-      {
+      if (optionValue == true) {
         m_childSelector = 0;
       }
-      else
-      {
+      else {
         m_childSelector = 1;
       }
       return OPTION_VALUE_SET;
@@ -356,10 +323,10 @@ Consumer::setContextOption(int optionName, bool optionValue)
 int
 Consumer::setContextOption(int optionName, Name optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case PREFIX:
-      m_prefix = optionValue;;
+      m_prefix = optionValue;
+      ;
       return OPTION_VALUE_SET;
 
     case SUFFIX:
@@ -368,26 +335,21 @@ Consumer::setContextOption(int optionName, Name optionValue)
 
     case FORWARDING_STRATEGY:
       m_forwardingStrategy = optionValue;
-      if (m_forwardingStrategy.empty())
-      {
+      if (m_forwardingStrategy.empty()) {
         nfd::ControlParameters parameters;
         parameters.setName(m_prefix);
 
         m_controller->start<nfd::StrategyChoiceUnsetCommand>(parameters,
-                                                 bind(&Consumer::onStrategyChangeSuccess, this, _1),
-                                                 bind(&Consumer::onStrategyChangeError, this, _1));
+                                                             bind(&Consumer::onStrategyChangeSuccess, this, _1),
+                                                             bind(&Consumer::onStrategyChangeError, this, _1));
       }
-      else
-      {
+      else {
         nfd::ControlParameters parameters;
-        parameters
-          .setName(m_prefix)
-          .setStrategy(m_forwardingStrategy);
+        parameters.setName(m_prefix).setStrategy(m_forwardingStrategy);
 
         m_controller->start<nfd::StrategyChoiceSetCommand>(parameters,
-                                               bind(&Consumer::onStrategyChangeSuccess, this, _1),
-                                               bind(&Consumer::onStrategyChangeError, this, _1));
-
+                                                           bind(&Consumer::onStrategyChangeSuccess, this, _1),
+                                                           bind(&Consumer::onStrategyChangeError, this, _1));
       }
       return OPTION_VALUE_SET;
 
@@ -399,10 +361,10 @@ Consumer::setContextOption(int optionName, Name optionValue)
 int
 Consumer::setContextOption(int optionName, ConsumerDataCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case DATA_ENTER_CNTX:
-      m_onDataEnteredContext = optionValue;;
+      m_onDataEnteredContext = optionValue;
+      ;
       return OPTION_VALUE_SET;
 
     default:
@@ -420,8 +382,7 @@ Consumer::setContextOption(int optionName, ProducerDataCallback optionValue)
 int
 Consumer::setContextOption(int optionName, ConsumerDataVerificationCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case DATA_TO_VERIFY:
       m_onDataToVerify = optionValue;
       return OPTION_VALUE_SET;
@@ -434,8 +395,7 @@ Consumer::setContextOption(int optionName, ConsumerDataVerificationCallback opti
 int
 Consumer::setContextOption(int optionName, ConsumerInterestCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case INTEREST_RETRANSMIT:
       m_onInterestRetransmitted = optionValue;
       return OPTION_VALUE_SET;
@@ -466,39 +426,39 @@ Consumer::setContextOption(int optionName, ProducerInterestCallback optionValue)
 int
 Consumer::setContextOption(int optionName, ConsumerContentCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case CONTENT_RETRIEVED:
       m_onPayloadReassembled = optionValue;
       return OPTION_VALUE_SET;
 
-    default: return OPTION_VALUE_NOT_SET;
+    default:
+      return OPTION_VALUE_NOT_SET;
   }
 }
 
 int
 Consumer::setContextOption(int optionName, ConsumerNackCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case NACK_ENTER_CNTX:
       m_onNack = optionValue;
       return OPTION_VALUE_SET;
 
-    default: return OPTION_VALUE_NOT_SET;
+    default:
+      return OPTION_VALUE_NOT_SET;
   }
 }
 
 int
 Consumer::setContextOption(int optionName, ConsumerManifestCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MANIFEST_ENTER_CNTX:
       m_onManifest = optionValue;
       return OPTION_VALUE_SET;
 
-    default: return OPTION_VALUE_NOT_SET;
+    default:
+      return OPTION_VALUE_NOT_SET;
   }
 }
 
@@ -512,21 +472,20 @@ Consumer::setContextOption(int optionName, KeyLocator optionValue)
 int
 Consumer::setContextOption(int optionName, Exclude optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case EXCLUDE_S:
       m_exclude = optionValue;
       return OPTION_VALUE_SET;
 
-    default: return OPTION_VALUE_NOT_SET;
+    default:
+      return OPTION_VALUE_NOT_SET;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, int& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MIN_WINDOW_SIZE:
       optionValue = m_minWindowSize;
       return OPTION_FOUND;
@@ -579,8 +538,7 @@ Consumer::getContextOption(int optionName, int& optionValue)
 int
 Consumer::getContextOption(int optionName, size_t& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case RCV_BUF_SIZE:
       optionValue = m_receiveBufferSize;
       return OPTION_FOUND;
@@ -597,8 +555,7 @@ Consumer::getContextOption(int optionName, size_t& optionValue)
 int
 Consumer::getContextOption(int optionName, bool& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MUST_BE_FRESH_S:
       optionValue = m_mustBeFresh;
       return OPTION_FOUND;
@@ -619,8 +576,7 @@ Consumer::getContextOption(int optionName, bool& optionValue)
 int
 Consumer::getContextOption(int optionName, Name& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case PREFIX:
       optionValue = m_prefix;
       return OPTION_FOUND;
@@ -641,8 +597,7 @@ Consumer::getContextOption(int optionName, Name& optionValue)
 int
 Consumer::getContextOption(int optionName, ConsumerDataCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case DATA_ENTER_CNTX:
       optionValue = m_onDataEnteredContext;
       return OPTION_FOUND;
@@ -662,8 +617,7 @@ Consumer::getContextOption(int optionName, ProducerDataCallback& optionValue)
 int
 Consumer::getContextOption(int optionName, ConsumerDataVerificationCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case DATA_TO_VERIFY:
       optionValue = m_onDataToVerify;
       return OPTION_FOUND;
@@ -676,8 +630,7 @@ Consumer::getContextOption(int optionName, ConsumerDataVerificationCallback& opt
 int
 Consumer::getContextOption(int optionName, ConsumerInterestCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case INTEREST_RETRANSMIT:
       optionValue = m_onInterestRetransmitted;
       return OPTION_FOUND;
@@ -686,7 +639,7 @@ Consumer::getContextOption(int optionName, ConsumerInterestCallback& optionValue
       optionValue = m_onInterestToLeaveContext;
       return OPTION_FOUND;
 
-     case INTEREST_EXPIRED:
+    case INTEREST_EXPIRED:
       optionValue = m_onInterestExpired;
       return OPTION_FOUND;
 
@@ -708,78 +661,78 @@ Consumer::getContextOption(int optionName, ProducerInterestCallback& optionValue
 int
 Consumer::getContextOption(int optionName, ConsumerContentCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case CONTENT_RETRIEVED:
       optionValue = m_onPayloadReassembled;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, ConsumerNackCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case NACK_ENTER_CNTX:
       optionValue = m_onNack;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, ConsumerManifestCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case MANIFEST_ENTER_CNTX:
       optionValue = m_onManifest;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, KeyLocator& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case KEYLOCATOR_S:
       optionValue = m_publisherKeyLocator;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, Exclude& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case EXCLUDE_S:
       optionValue = m_exclude;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Consumer::getContextOption(int optionName, shared_ptr<Face>& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case FACE:
       optionValue = m_face;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 

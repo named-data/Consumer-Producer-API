@@ -22,19 +22,19 @@
 
 #include "repo-tlv.hpp"
 
-#include <ndn-cxx/encoding/encoding-buffer.hpp>
 #include <ndn-cxx/encoding/block-helpers.hpp>
+#include <ndn-cxx/encoding/encoding-buffer.hpp>
 #include <ndn-cxx/name.hpp>
 #include <ndn-cxx/selectors.hpp>
 
 namespace repo {
 
-using ndn::Name;
 using ndn::Block;
-using ndn::EncodingImpl;
-using ndn::Selectors;
-using ndn::EncodingEstimator;
 using ndn::EncodingBuffer;
+using ndn::EncodingEstimator;
+using ndn::EncodingImpl;
+using ndn::Name;
+using ndn::Selectors;
 using namespace ndn::time;
 
 /**
@@ -48,8 +48,7 @@ public:
   class Error : public ndn::tlv::Error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : ndn::tlv::Error(what)
     {
     }
@@ -66,8 +65,7 @@ public:
   {
   }
 
-  explicit
-  RepoCommandParameter(const Block& block)
+  explicit RepoCommandParameter(const Block& block)
   {
     wireDecode(block);
   }
@@ -123,7 +121,7 @@ public:
   RepoCommandParameter&
   setStartBlockId(uint64_t startBlockId)
   {
-    m_startBlockId  = startBlockId;
+    m_startBlockId = startBlockId;
     m_hasStartBlockId = true;
     m_wire.reset();
     return *this;
@@ -145,7 +143,7 @@ public:
   RepoCommandParameter&
   setEndBlockId(uint64_t endBlockId)
   {
-    m_endBlockId  = endBlockId;
+    m_endBlockId = endBlockId;
     m_hasEndBlockId = true;
     m_wire.reset();
     return *this;
@@ -256,7 +254,6 @@ public:
   wireDecode(const Block& wire);
 
 private:
-
   Name m_name;
   Selectors m_selectors;
   uint64_t m_startBlockId;
@@ -375,16 +372,14 @@ RepoCommandParameter::wireDecode(const Block& wire)
 
   // Name
   Block::element_const_iterator val = m_wire.find(tlv::Name);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasName = true;
     m_name.wireDecode(m_wire.get(tlv::Name));
   }
 
   // Selectors
   val = m_wire.find(tlv::Selectors);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_selectors.wireDecode(*val);
   }
   else
@@ -392,53 +387,45 @@ RepoCommandParameter::wireDecode(const Block& wire)
 
   // StartBlockId
   val = m_wire.find(tlv::StartBlockId);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasStartBlockId = true;
     m_startBlockId = readNonNegativeInteger(*val);
   }
 
   // EndBlockId
   val = m_wire.find(tlv::EndBlockId);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasEndBlockId = true;
     m_endBlockId = readNonNegativeInteger(*val);
   }
 
   // ProcessId
   val = m_wire.find(tlv::ProcessId);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasProcessId = true;
     m_processId = readNonNegativeInteger(*val);
   }
 
   // MaxInterestNum
   val = m_wire.find(tlv::MaxInterestNum);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasMaxInterestNum = true;
     m_maxInterestNum = readNonNegativeInteger(*val);
   }
 
   // WatchTimeout
   val = m_wire.find(tlv::WatchTimeout);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasWatchTimeout = true;
     m_watchTimeout = milliseconds(readNonNegativeInteger(*val));
   }
 
   // InterestLiftTime
   val = m_wire.find(tlv::InterestLifetime);
-  if (val != m_wire.elements_end())
-  {
+  if (val != m_wire.elements_end()) {
     m_hasInterestLifetime = true;
     m_interestLifetime = milliseconds(readNonNegativeInteger(*val));
   }
-
-
 }
 
 inline std::ostream&
@@ -451,7 +438,7 @@ operator<<(std::ostream& os, const RepoCommandParameter& repoCommandParameter)
     os << " Name: " << repoCommandParameter.getName();
   }
   if (repoCommandParameter.hasStartBlockId()) {
-  // StartBlockId
+    // StartBlockId
     os << " StartBlockId: " << repoCommandParameter.getStartBlockId();
   }
   // EndBlockId

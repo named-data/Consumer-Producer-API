@@ -33,7 +33,9 @@ namespace examples {
 class CallbackContainer
 {
 public:
-  CallbackContainer(){}
+  CallbackContainer()
+  {
+  }
 
   void
   processInterest(Producer& p, const Interest& interest)
@@ -59,21 +61,19 @@ main(int argc, char** argv)
   p.setContextOption(SND_BUF_SIZE, 4);
   p.setContextOption(DATA_FRESHNESS, 100);
 
-  std::string a(5000,'A');
-  std::string b(5000,'B');
-  std::string c(5000,'C');
+  std::string a(5000, 'A');
+  std::string b(5000, 'B');
+  std::string c(5000, 'C');
 
-  std::string content = a+b+c;
+  std::string content = a + b + c;
   Name emptySuffix;
 
   p.produce(emptySuffix, (uint8_t*)content.c_str(), content.size());
 
   //setting callbacks
-  p.setContextOption(INTEREST_ENTER_CNTX,
-        (ProducerInterestCallback)bind(&CallbackContainer::processIncomingInterest, &stubs, _1, _2));
+  p.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::processIncomingInterest, &stubs, _1, _2));
 
-  p.setContextOption(CACHE_MISS,
-        (ProducerInterestCallback)bind(&CallbackContainer::processInterest, &stubs, _1, _2));
+  p.setContextOption(CACHE_MISS, (ProducerInterestCallback)bind(&CallbackContainer::processInterest, &stubs, _1, _2));
 
   p.attach();
 

@@ -4,8 +4,8 @@
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -22,8 +22,8 @@
 #ifndef PRIORITIZERS_HPP
 #define PRIORITIZERS_HPP
 
-#include "producer-context.hpp"
 #include "infomax-tree-node.hpp"
+#include "producer-context.hpp"
 #include <list>
 
 namespace ndn {
@@ -33,31 +33,31 @@ class Prioritizer
 {
 public:
   Prioritizer(Producer* p);
-  
+
   void
   prioritize();
 
 private:
-  void 
+  void
   simplePrioritizer(TreeNode* root);
-  
-  void 
+
+  void
   mergePrioritizer(TreeNode* root);
 
-  void 
+  void
   dummy(TreeNode* root);
 
-  TreeNode* 
+  TreeNode*
   getNextPriorityNode(TreeNode* root);
 
-  std::list<TreeNode *>* 
+  std::list<TreeNode*>*
   mergeSort(TreeNode* node);
 
-  std::list<TreeNode *>* 
-  merge(vector< std::list<TreeNode*>* > *subTreeMergeList);
+  std::list<TreeNode*>*
+  merge(std::vector<std::list<TreeNode*>*>* subTreeMergeList);
 
-  void 
-  produceInfoMaxList(Name, vector<TreeNode*>* prioritizedVector);
+  void
+  produceInfoMaxList(Name, std::vector<TreeNode*>* prioritizedVector);
 
   bool
   treeNodePointerComparator(TreeNode* i, TreeNode* j);
@@ -66,11 +66,11 @@ private:
   resetNodeStatus(TreeNode* node);
 
 private:
-  Producer *m_producer;
+  Producer* m_producer;
   uint64_t m_listVersion;
   Name m_prefix;
   TreeNode m_root;
 };
 
-}
+} // namespace ndn
 #endif // PRIORITIZERS_HPP

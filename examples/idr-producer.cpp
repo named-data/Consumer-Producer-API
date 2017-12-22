@@ -56,12 +56,11 @@ main(int argc, char** argv)
   Name sampleName("/test");
 
   CallbackContainer cb;
-  Producer *p = new Producer(sampleName);
-  p->setContextOption(DATA_LEAVE_CNTX,
-                (ProducerDataCallback)bind(&CallbackContainer::onPacket, &cb, _1, _2));
+  Producer* p = new Producer(sampleName);
+  p->setContextOption(DATA_LEAVE_CNTX, (ProducerDataCallback)bind(&CallbackContainer::onPacket, &cb, _1, _2));
 
   p->setContextOption(INFOMAX, true);
-  p->setContextOption(INFOMAX_PRIORITY, INFOMAX_SIMPLE_PRIORITY);  // generate only lists for the root node
+  p->setContextOption(INFOMAX_PRIORITY, INFOMAX_SIMPLE_PRIORITY); // generate only lists for the root node
   // p->setContextOption(INFOMAX_PRIORITY, INFOMAX_MERGE_PRIORITY);  // generate lists for all sub-trees
   // p->setContextOption(INFOMAX_UPDATE_INTERVAL, 10000);
 

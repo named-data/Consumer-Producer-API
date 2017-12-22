@@ -21,11 +21,11 @@
 
 // correct way to include Consumer/Producer API headers
 //#include <Consumer-Producer-API/consumer-context.hpp>
-#include "producer-context.hpp"
 #include "consumer-context.hpp"
+#include "producer-context.hpp"
 
-#include <ndn-cxx/util/time.hpp>
 #include <ndn-cxx/security/verification-helpers.hpp>
+#include <ndn-cxx/util/time.hpp>
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
 namespace examples {
 
-#define CONTENT_LENGTH 1*1024*1024
+#define CONTENT_LENGTH 1 * 1024 * 1024
 #define IDENTITY_NAME "/sequence/performance"
 
 class Performance
@@ -94,12 +94,10 @@ public:
   bool
   onPacket(Consumer& c, const Data& data)
   {
-    if (security::verifySignature(data, m_key))
-    {
+    if (security::verifySignature(data, m_key)) {
       return true;
     }
-    else
-    {
+    else {
       return false;
     }
   }
@@ -121,18 +119,14 @@ main(int argc, char** argv)
   Consumer c(sampleName, RDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
 
-  c.setContextOption(DATA_ENTER_CNTX,
-                (ConsumerDataCallback)bind(&Performance::onDataEnters, &performance, _1, _2));
+  c.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&Performance::onDataEnters, &performance, _1, _2));
 
-  c.setContextOption(INTEREST_LEAVE_CNTX,
-                (ConsumerInterestCallback)bind(&Performance::onInterestLeaves, &performance, _1, _2));
+  c.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&Performance::onInterestLeaves, &performance, _1, _2));
 
-  c.setContextOption(CONTENT_RETRIEVED,
-                (ConsumerContentCallback)bind(&Performance::onContent, &performance, _1, _2, _3));
+  c.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&Performance::onContent, &performance, _1, _2, _3));
 
   time::system_clock::TimePoint m_start = time::system_clock::now();
-  for (uint64_t i = 0; i <= 1000; i++)
-  {
+  for (uint64_t i = 0; i <= 1000; i++) {
     Name n;
     n.append(name::Component::fromNumber(i));
     c.consume(n);

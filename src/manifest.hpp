@@ -23,14 +23,14 @@
 #define MANIFEST_HPP
 
 #include "common.hpp"
-#include "context.hpp"
-#include "context-options.hpp"
 #include "context-default-values.hpp"
+#include "context-options.hpp"
+#include "context.hpp"
 #include "tlv.hpp"
 
 #include <ndn-cxx/encoding/tlv.hpp>
-#include <ndn-cxx/util/sha256.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
+#include <ndn-cxx/util/sha256.hpp>
 
 namespace ndn {
 
@@ -48,17 +48,14 @@ public:
    */
   Manifest();
 
-  explicit
-  Manifest(const Name& name);
+  explicit Manifest(const Name& name);
 
-  explicit
-  Manifest(const Data& data);
+  explicit Manifest(const Data& data);
 
   /**
    * The virtual destructor.
    */
-  virtual
-  ~Manifest();
+  virtual ~Manifest();
 
   inline void
   wireDecode(const Block& wire);

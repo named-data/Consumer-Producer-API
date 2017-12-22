@@ -21,8 +21,8 @@
 
 // correct way to include Consumer/Producer API headers
 //#include <Consumer-Producer-API/producer-context.hpp>
-#include "producer-context.hpp"
 #include "consumer-context.hpp"
+#include "producer-context.hpp"
 
 #include <ndn-cxx/util/time.hpp>
 
@@ -33,7 +33,7 @@ namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
 namespace examples {
 
-#define CONTENT_LENGTH 30*1024
+#define CONTENT_LENGTH 30 * 1024
 #define IDENTITY_NAME "/sequence/performance"
 
 int
@@ -48,8 +48,7 @@ main(int argc, char** argv)
 
   uint8_t* content = new uint8_t[CONTENT_LENGTH];
 
-  for (uint64_t i = 0; i <= 1000; i++)
-  {
+  for (uint64_t i = 0; i <= 1000; i++) {
     Name n;
     n.append(name::Component::fromNumber(i));
     p.produce(n, content, CONTENT_LENGTH);

@@ -28,15 +28,11 @@ shared_ptr<ndn::Face> FaceHelper::m_face = 0;
 shared_ptr<ndn::Face>
 FaceHelper::getFace()
 {
-  if (!m_face)
-  {
+  if (!m_face) {
     m_face = ndn::make_shared<ndn::Face>();
   }
- 
+
   return m_face;
 }
 
 } // namespace ndn
-
-
- 

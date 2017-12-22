@@ -29,49 +29,43 @@ SelectorHelper::applySelectors(Interest& interest, Context* context)
 {
   int minSuffix = -1;
   context->getContextOption(MIN_SUFFIX_COMP_S, minSuffix);
-  
-  if (minSuffix >= 0)
-  {
+
+  if (minSuffix >= 0) {
     interest.setMinSuffixComponents(minSuffix);
   }
-  
+
   int maxSuffix = -1;
   context->getContextOption(MAX_SUFFIX_COMP_S, maxSuffix);
-  
-  if (maxSuffix >= 0)
-  {
+
+  if (maxSuffix >= 0) {
     interest.setMaxSuffixComponents(maxSuffix);
   }
-  
+
   Exclude exclusion;
   context->getContextOption(EXCLUDE_S, exclusion);
-  
-  if (!exclusion.empty())
-  {
+
+  if (!exclusion.empty()) {
     interest.setExclude(exclusion);
   }
-  
+
   bool mustBeFresh = false;
   context->getContextOption(MUST_BE_FRESH_S, mustBeFresh);
-  
-  if (mustBeFresh)
-  {
+
+  if (mustBeFresh) {
     interest.setMustBeFresh(mustBeFresh);
   }
-  
+
   int child = -10;
   context->getContextOption(RIGHTMOST_CHILD_S, child);
-  
-  if (child != -10)
-  {
+
+  if (child != -10) {
     interest.setChildSelector(child);
   }
-  
+
   KeyLocator keyLocator;
   context->getContextOption(KEYLOCATOR_S, keyLocator);
-  
-  if (!keyLocator.empty())
-  {
+
+  if (!keyLocator.empty()) {
     interest.setPublisherPublicKeyLocator(keyLocator);
   }
 }

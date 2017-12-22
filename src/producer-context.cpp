@@ -27,33 +27,33 @@
 namespace ndn {
 
 Producer::Producer(Name prefix)
-: m_prefix(prefix)
-, m_dataPacketSize(DEFAULT_DATA_PACKET_SIZE)
-, m_dataFreshness(DEFAULT_DATA_FRESHNESS)
-, m_registrationStatus(REGISTRATION_NOT_ATTEMPTED)
-, m_isMakingManifest(false)
-, m_isWritingToLocalRepo(false)
-, m_repoSocket(m_repoIoService)
-, m_infomaxType (INFOMAX_NONE) // infomax disabled by default
-, m_infomaxTreeVersion (0)
-, m_infomaxUpdateInterval (INFOMAX_DEFAULT_UPDATE_INTERVAL)
-, m_isNewInfomaxData (false)
-, m_infomaxRoot (TreeNode (prefix, 0))
-, m_signatureType(SHA_256)
-, m_keyLocatorSize(DEFAULT_KEY_LOCATOR_SIZE)
-, m_sendBuffer(DEFAULT_PRODUCER_SND_BUFFER_SIZE)
-, m_receiveBufferCapacity(DEFAULT_PRODUCER_RCV_BUFFER_SIZE)
-, m_receiveBufferSize(0)
-, m_onInterestEntersContext(EMPTY_CALLBACK)
-, m_onInterestDroppedFromRcvBuffer(EMPTY_CALLBACK)
-, m_onInterestPassedRcvBuffer(EMPTY_CALLBACK)
-, m_onInterestSatisfiedFromSndBuffer(EMPTY_CALLBACK)
-, m_onInterestProcess(EMPTY_CALLBACK)
-, m_onNewSegment(EMPTY_CALLBACK)
-, m_onDataToSecure(EMPTY_CALLBACK)
-, m_onDataInSndBuffer(EMPTY_CALLBACK)
-, m_onDataLeavesContext(EMPTY_CALLBACK)
-, m_onDataEvictedFromSndBuffer(EMPTY_CALLBACK)
+  : m_prefix(prefix)
+  , m_dataPacketSize(DEFAULT_DATA_PACKET_SIZE)
+  , m_dataFreshness(DEFAULT_DATA_FRESHNESS)
+  , m_registrationStatus(REGISTRATION_NOT_ATTEMPTED)
+  , m_isMakingManifest(false)
+  , m_isWritingToLocalRepo(false)
+  , m_repoSocket(m_repoIoService)
+  , m_infomaxType(INFOMAX_NONE) // infomax disabled by default
+  , m_infomaxTreeVersion(0)
+  , m_infomaxUpdateInterval(INFOMAX_DEFAULT_UPDATE_INTERVAL)
+  , m_isNewInfomaxData(false)
+  , m_infomaxRoot(TreeNode(prefix, 0))
+  , m_signatureType(SHA_256)
+  , m_keyLocatorSize(DEFAULT_KEY_LOCATOR_SIZE)
+  , m_sendBuffer(DEFAULT_PRODUCER_SND_BUFFER_SIZE)
+  , m_receiveBufferCapacity(DEFAULT_PRODUCER_RCV_BUFFER_SIZE)
+  , m_receiveBufferSize(0)
+  , m_onInterestEntersContext(EMPTY_CALLBACK)
+  , m_onInterestDroppedFromRcvBuffer(EMPTY_CALLBACK)
+  , m_onInterestPassedRcvBuffer(EMPTY_CALLBACK)
+  , m_onInterestSatisfiedFromSndBuffer(EMPTY_CALLBACK)
+  , m_onInterestProcess(EMPTY_CALLBACK)
+  , m_onNewSegment(EMPTY_CALLBACK)
+  , m_onDataToSecure(EMPTY_CALLBACK)
+  , m_onDataInSndBuffer(EMPTY_CALLBACK)
+  , m_onDataLeavesContext(EMPTY_CALLBACK)
+  , m_onDataEvictedFromSndBuffer(EMPTY_CALLBACK)
 {
   m_face = ndn::make_shared<ndn::Face>();
   m_controller = ndn::make_shared<nfd::Controller>(*m_face, m_keyChain);
@@ -91,14 +91,11 @@ Producer::listen()
 void
 Producer::updateInfomaxTree()
 {
-  if (m_infomaxType == INFOMAX_SIMPLE_PRIORITY || m_infomaxType == INFOMAX_MERGE_PRIORITY)
-  {
-    m_scheduler->scheduleEvent( time::milliseconds(m_infomaxUpdateInterval),
-                                bind(&Producer::updateInfomaxTree, this));
+  if (m_infomaxType == INFOMAX_SIMPLE_PRIORITY || m_infomaxType == INFOMAX_MERGE_PRIORITY) {
+    m_scheduler->scheduleEvent(time::milliseconds(m_infomaxUpdateInterval), bind(&Producer::updateInfomaxTree, this));
   }
 
-  if (!m_isNewInfomaxData || m_infomaxType == INFOMAX_NONE)
-  {
+  if (!m_isNewInfomaxData || m_infomaxType == INFOMAX_NONE) {
     return;
   }
 
@@ -107,13 +104,13 @@ Producer::updateInfomaxTree()
 }
 
 void
-Producer::onRegistrationSucceded (const ndn::Name& prefix)
+Producer::onRegistrationSucceded(const ndn::Name& prefix)
 {
   m_registrationStatus = REGISTRATION_SUCCESS;
 }
 
 void
-Producer::onRegistrationFailed (const ndn::Name& prefix, const std::string& reason)
+Producer::onRegistrationFailed(const ndn::Name& prefix, const std::string& reason)
 {
   m_registrationStatus = REGISTRATION_FAILURE;
   m_face->shutdown();
@@ -122,27 +119,20 @@ Producer::onRegistrationFailed (const ndn::Name& prefix, const std::string& reas
 void
 Producer::passSegmentThroughCallbacks(shared_ptr<Data> segment)
 {
-  if (segment)
-  {
-    if (m_onNewSegment != EMPTY_CALLBACK)
-    {
+  if (segment) {
+    if (m_onNewSegment != EMPTY_CALLBACK) {
       m_onNewSegment(*this, *segment);
     }
 
-    if (m_onDataToSecure != EMPTY_CALLBACK)
-    {
-      if (!m_isMakingManifest)
-      {
+    if (m_onDataToSecure != EMPTY_CALLBACK) {
+      if (!m_isMakingManifest) {
         m_onDataToSecure(*this, *segment);
       }
-      else
-      {
-        if (segment->getContentType() == tlv::ContentType_Manifest)
-        {
+      else {
+        if (segment->getContentType() == tlv::ContentType_Manifest) {
           m_onDataToSecure(*this, *segment);
         }
-        else
-        {
+        else {
           // data's KeyLocator will point to the corresponding manifest
           ndn::DigestSha256 sig;
           const SignatureInfo info(tlv::DigestSha256, m_keyLocator);
@@ -151,8 +141,7 @@ Producer::passSegmentThroughCallbacks(shared_ptr<Data> segment)
 
           Block sigValue(tlv::SignatureValue,
                          util::Sha256::computeDigest(segment->wireEncode().value(),
-                                                     segment->wireEncode().value_size() -
-                                                     segment->getSignature().getValue().size()));
+                                                     segment->wireEncode().value_size() - segment->getSignature().getValue().size()));
           segment->setSignatureValue(sigValue);
         }
       }
@@ -162,25 +151,21 @@ Producer::passSegmentThroughCallbacks(shared_ptr<Data> segment)
       m_keyChain.sign(*segment, signingWithSha256());
     }
 
-    if (m_onDataInSndBuffer != EMPTY_CALLBACK)
-    {
+    if (m_onDataInSndBuffer != EMPTY_CALLBACK) {
       m_onDataInSndBuffer(*this, *segment);
     }
 
     m_sendBuffer.insert(*segment);
 
-    if (m_onDataLeavesContext != EMPTY_CALLBACK)
-    {
+    if (m_onDataLeavesContext != EMPTY_CALLBACK) {
       m_onDataLeavesContext(*this, *segment);
     }
 
     m_face->put(*segment);
 
-    if (m_isWritingToLocalRepo)
-    {
+    if (m_isWritingToLocalRepo) {
       boost::system::error_code ec;
-      m_repoSocket.write_some(boost::asio::buffer(segment->wireEncode().wire(),
-                                                  segment->wireEncode().size()), ec);
+      m_repoSocket.write_some(boost::asio::buffer(segment->wireEncode().wire(), segment->wireEncode().size()), ec);
     }
   }
 }
@@ -190,8 +175,7 @@ Producer::estimateManifestSize(shared_ptr<Manifest> manifest)
 {
   size_t manifestSize = manifest->getName().wireEncode().size();
 
-  for (std::list<Name>::const_iterator it = manifest->catalogueBegin(); it != manifest->catalogueEnd(); ++it)
-  {
+  for (std::list<Name>::const_iterator it = manifest->catalogueBegin(); it != manifest->catalogueEnd(); ++it) {
     manifestSize += it->wireEncode().size();
   }
 
@@ -203,33 +187,28 @@ Producer::estimateManifestSize(shared_ptr<Manifest> manifest)
 void
 Producer::produce(Data& packet)
 {
-  if(!m_prefix.isPrefixOf(packet.getName()))
+  if (!m_prefix.isPrefixOf(packet.getName()))
     return;
 
-  if (m_onDataInSndBuffer != EMPTY_CALLBACK)
-  {
+  if (m_onDataInSndBuffer != EMPTY_CALLBACK) {
     m_onDataInSndBuffer(*this, packet);
   }
 
   m_sendBuffer.insert(packet);
 
-  if (m_onDataLeavesContext != EMPTY_CALLBACK)
-  {
+  if (m_onDataLeavesContext != EMPTY_CALLBACK) {
     m_onDataLeavesContext(*this, packet);
   }
 
   m_face->put(packet);
 
-  if (m_isWritingToLocalRepo)
-  {
+  if (m_isWritingToLocalRepo) {
     boost::system::error_code ec;
-    m_repoSocket.write_some(boost::asio::buffer(packet.wireEncode().wire(),
-                                                packet.wireEncode().size()), ec);
+    m_repoSocket.write_some(boost::asio::buffer(packet.wireEncode().wire(), packet.wireEncode().size()), ec);
   }
 
   // if user requested writing in the remote Repo
-  if (!m_targetRepoPrefix.empty())
-  {
+  if (!m_targetRepoPrefix.empty()) {
     repo::RepoCommandParameter commandParameter;
     commandParameter.setName(packet.getName());
 
@@ -238,9 +217,9 @@ Producer::produce(Data& packet)
 
     Interest repoCommand(interestName);
     m_face->expressInterest(repoCommand,
-                          bind(&Producer::onRepoReply, this, _1, _2),
-                          bind(&Producer::onRepoNack, this, _1, _2),
-                          bind(&Producer::onRepoTimeout, this, _1));
+                            bind(&Producer::onRepoReply, this, _1, _2),
+                            bind(&Producer::onRepoNack, this, _1, _2),
+                            bind(&Producer::onRepoTimeout, this, _1));
   }
 }
 
@@ -255,8 +234,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
   int bytesPackaged = 0;
 
   Name name(m_prefix);
-  if(!suffix.empty())
-  {
+  if (!suffix.empty()) {
     name.append(suffix);
   }
 
@@ -265,8 +243,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
 
   int signatureSize = 32; //SHA_256 as default
 
-  int freeSpaceForContent = m_dataPacketSize - bytesOccupiedByName - signatureSize
-                            - m_keyLocatorSize - DEFAULT_SAFETY_OFFSET;
+  int freeSpaceForContent = m_dataPacketSize - bytesOccupiedByName - signatureSize - m_keyLocatorSize - DEFAULT_SAFETY_OFFSET;
 
   int numberOfSegments = bufferSize / freeSpaceForContent;
 
@@ -286,10 +263,8 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
     shared_ptr<Manifest> manifestSegment;
     bool needManifestSegment = true;
 
-    for (int packagedSegments = 0; packagedSegments < numberOfSegments;)
-    {
-      if (needManifestSegment)
-      {
+    for (int packagedSegments = 0; packagedSegments < numberOfSegments;) {
+      if (needManifestSegment) {
         Name manifestName(m_prefix);
         if (!suffix.empty())
           manifestName.append(suffix);
@@ -302,8 +277,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
         }
 
         manifestSegment = make_shared<Manifest>(manifestName); // new empty manifest
-        manifestSegment->setFinalBlockId(
-          name::Component::fromSegment(currentSegment + numberOfSegments - packagedSegments));
+        manifestSegment->setFinalBlockId(name::Component::fromSegment(currentSegment + numberOfSegments - packagedSegments));
 
         finalSegment = currentSegment;
         needManifestSegment = false;
@@ -314,7 +288,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
       }
 
       Name fullName(m_prefix);
-      if(!suffix.empty())
+      if (!suffix.empty())
         fullName.append(suffix);
       fullName.appendSegment(currentSegment);
 
@@ -327,24 +301,20 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
         dataSegment->setContent(&buf[bytesPackaged], bufferSize - bytesPackaged);
         bytesPackaged += bufferSize - bytesPackaged;
       }
-      else
-      {
+      else {
         dataSegment->setContent(&buf[bytesPackaged], freeSpaceForContent);
         bytesPackaged += freeSpaceForContent;
       }
 
-      dataSegment->setFinalBlockId(
-        name::Component::fromSegment(currentSegment + numberOfSegments - packagedSegments - 1));
+      dataSegment->setFinalBlockId(name::Component::fromSegment(currentSegment + numberOfSegments - packagedSegments - 1));
 
       passSegmentThroughCallbacks(dataSegment);
       currentSegment++;
 
       size_t manifestSize = estimateManifestSize(manifestSegment);
-      size_t fullNameSize = dataSegment->getName().wireEncode().size()
-                            + dataSegment->getSignature().getValue().size();
+      size_t fullNameSize = dataSegment->getName().wireEncode().size() + dataSegment->getSignature().getValue().size();
 
-      if (manifestSize + 2*fullNameSize > m_dataPacketSize)
-      {
+      if (manifestSize + 2 * fullNameSize > m_dataPacketSize) {
         needManifestSegment = true;
       }
 
@@ -352,10 +322,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
       ndn::ConstBufferPtr implicitDigest = ndn::util::Sha256::computeDigest(block.wire(), block.size());
 
       //add implicit digest to the manifest
-      manifestSegment->addNameToCatalogue(
-                          dataSegment->getName().getSubName(dataSegment->getName().size() - 1, 1),
-                          implicitDigest
-                          );
+      manifestSegment->addNameToCatalogue(dataSegment->getName().getSubName(dataSegment->getName().size() - 1, 1), implicitDigest);
 
       packagedSegments++;
 
@@ -369,10 +336,9 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
   else // just normal segmentation
   {
     uint64_t i = 0;
-    for (i = currentSegment; i < numberOfSegments + currentSegment; i++)
-    {
+    for (i = currentSegment; i < numberOfSegments + currentSegment; i++) {
       Name fullName(m_prefix);
-      if(!suffix.empty())
+      if (!suffix.empty())
         fullName.append(suffix);
 
       fullName.appendSegment(i);
@@ -387,8 +353,7 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
         data->setContent(&buf[bytesPackaged], bufferSize - bytesPackaged);
         bytesPackaged += bufferSize - bytesPackaged;
       }
-      else
-      {
+      else {
         data->setContent(&buf[bytesPackaged], freeSpaceForContent);
         bytesPackaged += freeSpaceForContent;
       }
@@ -400,53 +365,44 @@ Producer::produce(Name suffix, const uint8_t* buf, size_t bufferSize)
   }
 
   // if user requested writing into the REPO
-  if (!m_targetRepoPrefix.empty())
-  {
+  if (!m_targetRepoPrefix.empty()) {
     Name dataPrefix(m_prefix);
     dataPrefix.append(suffix);
     writeToRepo(dataPrefix, initialSegment, finalSegment - 1);
   }
 
   // if data is INFOMAX list or meta info, do not update INFOMAX tree
-  for (unsigned int i=0; i<suffix.size(); i++) {
-    if(suffix.get(i).toUri().compare(INFOMAX_INTEREST_TAG) == 0) {
+  for (unsigned int i = 0; i < suffix.size(); i++) {
+    if (suffix.get(i).toUri().compare(INFOMAX_INTEREST_TAG) == 0) {
       return;
     }
   }
 
   // if infomax mode is enabled
-  if (m_infomaxType == INFOMAX_MERGE_PRIORITY
-      || m_infomaxType == INFOMAX_SIMPLE_PRIORITY)
-  {
+  if (m_infomaxType == INFOMAX_MERGE_PRIORITY || m_infomaxType == INFOMAX_SIMPLE_PRIORITY) {
     m_isNewInfomaxData = true;
     size_t lastElement = suffix.size();
-    TreeNode *prev = &m_infomaxRoot;
+    TreeNode* prev = &m_infomaxRoot;
 
-    for (size_t i = 1; i <= suffix.size() ; ++i)
-    {
-      vector<TreeNode*> prevChildren = prev->getChildren();
-      TreeNode *curr = 0;
+    for (size_t i = 1; i <= suffix.size(); ++i) {
+      std::vector<TreeNode*> prevChildren = prev->getChildren();
+      TreeNode* curr = 0;
 
-      for(size_t j=0; j<prevChildren.size(); j++)
-      {
-        if(prevChildren[j]->getName().equals(suffix.getSubName(0, i)))
-        {
+      for (size_t j = 0; j < prevChildren.size(); j++) {
+        if (prevChildren[j]->getName().equals(suffix.getSubName(0, i))) {
           curr = prevChildren[j];
           break;
         }
       }
 
-      if (curr == 0)
-      {
-        if (i==lastElement)
-        {
+      if (curr == 0) {
+        if (i == lastElement) {
           curr = new TreeNode(suffix, prev);
           curr->setDataNode(true);
           prev->addChild(curr);
         }
-        else
-        {
-          Name *insertName = new Name(suffix.getSubName(0, i).toUri());
+        else {
+          Name* insertName = new Name(suffix.getSubName(0, i).toUri());
           curr = new TreeNode(*insertName, prev);
           prev->addChild(curr);
         }
@@ -461,21 +417,13 @@ void
 Producer::asyncProduce(Data& packet)
 {
   shared_ptr<Data> p = packet.shared_from_this();
-  m_scheduler->scheduleEvent(time::milliseconds(0),
-                [p, this] ()
-                {
-                  produce(*p);
-                });
+  m_scheduler->scheduleEvent(time::milliseconds(0), [p, this]() { produce(*p); });
 }
 
 void
 Producer::asyncProduce(Name suffix, const uint8_t* buffer, size_t bufferSize)
 {
-  m_scheduler->scheduleEvent( time::milliseconds(0),
-                              [suffix, buffer, bufferSize, this] ()
-                              {
-                                produce(suffix, buffer, bufferSize);
-                              });
+  m_scheduler->scheduleEvent(time::milliseconds(0), [suffix, buffer, bufferSize, this]() { produce(suffix, buffer, bufferSize); });
 }
 
 void
@@ -519,12 +467,10 @@ Producer::nack(ApplicationNack nack)
 
   nack.encode();
 
-  if (m_onDataToSecure != EMPTY_CALLBACK)
-  {
+  if (m_onDataToSecure != EMPTY_CALLBACK) {
     m_onDataToSecure(*this, nack);
   }
-  else
-  {
+  else {
     m_keyChain.sign(nack, signingWithSha256());
   }
 
@@ -536,8 +482,7 @@ Producer::nack(ApplicationNack nack)
 
   //m_sendBuffer.insert(*nack);
 
-  if (m_onDataLeavesContext != EMPTY_CALLBACK)
-  {
+  if (m_onDataLeavesContext != EMPTY_CALLBACK) {
     m_onDataLeavesContext(*this, nack);
   }
 
@@ -550,17 +495,14 @@ Producer::nack(ApplicationNack nack)
 void
 Producer::onInterest(const Name& name, const Interest& interest)
 {
-  if (m_onInterestEntersContext != EMPTY_CALLBACK)
-  {
+  if (m_onInterestEntersContext != EMPTY_CALLBACK) {
     m_onInterestEntersContext(*this, interest);
   }
 
-  if (m_receiveBufferSize >= m_receiveBufferCapacity)
-  {
+  if (m_receiveBufferSize >= m_receiveBufferCapacity) {
     // send Interest NACK
   }
-  else
-  {
+  else {
     m_receiveBufferMutex.lock();
     m_receiveBuffer.push(interest.shared_from_this());
     m_receiveBufferSize++;
@@ -568,20 +510,16 @@ Producer::onInterest(const Name& name, const Interest& interest)
   }
 }
 
-void
-Producer::processIncomingInterest(/*const Name& name, const Interest& interest*/)
+void Producer::processIncomingInterest(/*const Name& name, const Interest& interest*/)
 {
-  while (true)
-  {
-    if (m_receiveBufferSize == 0)
-    {
+  while (true) {
+    if (m_receiveBufferSize == 0) {
       struct timespec ts;
       ts.tv_sec = 0;
       ts.tv_nsec = 1000000;
       nanosleep(&ts, NULL); // sleep for 1 ms
     }
-    else
-    {
+    else {
       m_receiveBufferMutex.lock();
       shared_ptr<const Interest> interest = m_receiveBuffer.front();
       m_receiveBuffer.pop();
@@ -597,31 +535,25 @@ Producer::processIncomingInterest(/*const Name& name, const Interest& interest*/
       }*/
 
       const Data* data = m_sendBuffer.find(*interest);
-      if ((Data*)data != 0)
-      {
-        if (m_onInterestSatisfiedFromSndBuffer != EMPTY_CALLBACK)
-        {
+      if ((Data*)data != 0) {
+        if (m_onInterestSatisfiedFromSndBuffer != EMPTY_CALLBACK) {
           m_onInterestSatisfiedFromSndBuffer(*this, *interest);
         }
 
-        if (m_onDataLeavesContext != EMPTY_CALLBACK)
-        {
+        if (m_onDataLeavesContext != EMPTY_CALLBACK) {
           m_onDataLeavesContext(*this, *const_cast<Data*>(data));
         }
 
         m_face->put(*data);
       }
-      else
-      {
-        if (m_onInterestProcess != EMPTY_CALLBACK)
-        {
+      else {
+        if (m_onInterestProcess != EMPTY_CALLBACK) {
           m_onInterestProcess(*this, *interest);
         }
       }
     }
   }
-
-  }
+}
 
 void
 Producer::processInterestFromReceiveBuffer()
@@ -632,38 +564,31 @@ Producer::processInterestFromReceiveBuffer()
 int
 Producer::setContextOption(int optionName, int optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case DATA_PKT_SIZE:
-      if (optionValue < MAX_DATA_PACKET_SIZE && optionValue > 0)
-      {
+      if (optionValue < MAX_DATA_PACKET_SIZE && optionValue > 0) {
         m_dataPacketSize = optionValue;
         return OPTION_VALUE_SET;
       }
-      else
-      {
+      else {
         return OPTION_VALUE_NOT_SET;
       }
 
     case RCV_BUF_SIZE:
-      if (optionValue >= 1)
-      {
+      if (optionValue >= 1) {
         m_receiveBufferCapacity = optionValue;
         return OPTION_VALUE_SET;
       }
-      else
-      {
+      else {
         return OPTION_VALUE_NOT_SET;
       }
 
     case SND_BUF_SIZE:
-      if (optionValue >= 0)
-      {
+      if (optionValue >= 0) {
         m_sendBuffer.setLimit(optionValue);
         return OPTION_VALUE_SET;
       }
-      else
-      {
+      else {
         return OPTION_VALUE_NOT_SET;
       }
 
@@ -687,74 +612,64 @@ Producer::setContextOption(int optionName, int optionValue)
       return OPTION_VALUE_SET;
 
     case INFOMAX_PRIORITY:
-        m_infomaxType = optionValue;
+      m_infomaxType = optionValue;
 
     case INTEREST_ENTER_CNTX:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestEntersContext = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case INTEREST_DROP_RCV_BUF:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestDroppedFromRcvBuffer = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case INTEREST_PASS_RCV_BUF:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestPassedRcvBuffer = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case CACHE_HIT:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestSatisfiedFromSndBuffer = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case CACHE_MISS:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onInterestProcess = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case NEW_DATA_SEGMENT:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onNewSegment = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_TO_SECURE:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataToSecure = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_IN_SND_BUF:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataInSndBuffer = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_LEAVE_CNTX:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataLeavesContext = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
 
     case DATA_EVICT_SND_BUF:
-      if (optionValue == EMPTY_CALLBACK)
-      {
+      if (optionValue == EMPTY_CALLBACK) {
         m_onDataEvictedFromSndBuffer = EMPTY_CALLBACK;
         return OPTION_VALUE_SET;
       }
@@ -767,22 +682,19 @@ Producer::setContextOption(int optionName, int optionValue)
 int
 Producer::setContextOption(int optionName, bool optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case FAST_SIGNING:
       m_isMakingManifest = optionValue;
       return OPTION_VALUE_SET;
 
     case LOCAL_REPO:
 
-      if (optionValue == true)
-      {
+      if (optionValue == true) {
         boost::asio::ip::tcp::endpoint ep(boost::asio::ip::address_v4::from_string("127.0.0.1"), 1000);
         boost::system::error_code ec;
-        m_repoSocket.connect(ep,ec);
+        m_repoSocket.connect(ep, ec);
 
-        if (ec)
-        {
+        if (ec) {
           return OPTION_VALUE_NOT_SET;
         }
       }
@@ -791,16 +703,13 @@ Producer::setContextOption(int optionName, bool optionValue)
       return OPTION_VALUE_SET;
 
     case INFOMAX:
-      if (optionValue == true)
-      {
+      if (optionValue == true) {
         m_infomaxPrioritizer = make_shared<Prioritizer>(this);
         m_infomaxType = INFOMAX_SIMPLE_PRIORITY;
         //updateInfomaxTree();
-        m_scheduler->scheduleEvent( time::milliseconds(m_infomaxUpdateInterval),
-                                bind(&Producer::updateInfomaxTree, this));
+        m_scheduler->scheduleEvent(time::milliseconds(m_infomaxUpdateInterval), bind(&Producer::updateInfomaxTree, this));
       }
-      else
-      {
+      else {
         m_infomaxType = INFOMAX_NONE;
       }
 
@@ -812,8 +721,7 @@ Producer::setContextOption(int optionName, bool optionValue)
 int
 Producer::setContextOption(int optionName, Name optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case PREFIX:
       m_prefix = optionValue;
       return OPTION_VALUE_SET;
@@ -824,30 +732,24 @@ Producer::setContextOption(int optionName, Name optionValue)
 
     case FORWARDING_STRATEGY:
       m_forwardingStrategy = optionValue;
-      if (m_forwardingStrategy.empty())
-      {
+      if (m_forwardingStrategy.empty()) {
         nfd::ControlParameters parameters;
         parameters.setName(m_prefix);
 
         m_controller->start<nfd::StrategyChoiceUnsetCommand>(parameters,
-                                                 bind(&Producer::onStrategyChangeSuccess, this, _1,
-                                                      "Successfully unset strategy choice"),
-                                                 bind(&Producer::onStrategyChangeError, this, _1,
-                                                      "Failed to unset strategy choice"));
+                                                             bind(&Producer::onStrategyChangeSuccess, this, _1,
+                                                                  "Successfully unset strategy choice"),
+                                                             bind(&Producer::onStrategyChangeError, this, _1,
+                                                                  "Failed to unset strategy choice"));
       }
-      else
-      {
+      else {
         nfd::ControlParameters parameters;
-        parameters
-          .setName(m_prefix)
-          .setStrategy(m_forwardingStrategy);
+        parameters.setName(m_prefix).setStrategy(m_forwardingStrategy);
 
         m_controller->start<nfd::StrategyChoiceSetCommand>(parameters,
-                                               bind(&Producer::onStrategyChangeSuccess, this, _1,
-                                                    "Successfully set strategy choice"),
-                                               bind(&Producer::onStrategyChangeError, this, _1,
-                                                    "Failed to set strategy choice"));
-
+                                                           bind(&Producer::onStrategyChangeSuccess, this, _1,
+                                                                "Successfully set strategy choice"),
+                                                           bind(&Producer::onStrategyChangeError, this, _1, "Failed to set strategy choice"));
       }
       return OPTION_VALUE_SET;
 
@@ -859,8 +761,7 @@ Producer::setContextOption(int optionName, Name optionValue)
 int
 Producer::setContextOption(int optionName, ProducerDataCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case NEW_DATA_SEGMENT:
       m_onNewSegment = optionValue;
       return OPTION_VALUE_SET;
@@ -889,8 +790,7 @@ Producer::setContextOption(int optionName, ProducerDataCallback optionValue)
 int
 Producer::setContextOption(int optionName, ProducerInterestCallback optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case INTEREST_ENTER_CNTX:
       m_onInterestEntersContext = optionValue;
       return OPTION_VALUE_SET;
@@ -969,8 +869,7 @@ Producer::setContextOption(int optionName, Exclude optionValue)
 int
 Producer::getContextOption(int optionName, int& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case RCV_BUF_SIZE:
       optionValue = m_receiveBufferCapacity;
       return OPTION_FOUND;
@@ -1011,8 +910,7 @@ Producer::getContextOption(int optionName, int& optionValue)
 int
 Producer::getContextOption(int optionName, bool& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case FAST_SIGNING:
       optionValue = m_isMakingManifest;
       return OPTION_FOUND;
@@ -1022,12 +920,10 @@ Producer::getContextOption(int optionName, bool& optionValue)
       return OPTION_FOUND;
 
     case INFOMAX:
-      if (m_infomaxType == INFOMAX_SIMPLE_PRIORITY || m_infomaxType == INFOMAX_MERGE_PRIORITY)
-      {
+      if (m_infomaxType == INFOMAX_SIMPLE_PRIORITY || m_infomaxType == INFOMAX_MERGE_PRIORITY) {
         optionValue = true;
       }
-      else
-      {
+      else {
         optionValue = false;
       }
 
@@ -1041,8 +937,7 @@ Producer::getContextOption(int optionName, bool& optionValue)
 int
 Producer::getContextOption(int optionName, Name& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case PREFIX:
       optionValue = m_prefix;
       return OPTION_FOUND;
@@ -1063,8 +958,7 @@ Producer::getContextOption(int optionName, Name& optionValue)
 int
 Producer::getContextOption(int optionName, ProducerDataCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case NEW_DATA_SEGMENT:
       optionValue = m_onNewSegment;
       return OPTION_FOUND;
@@ -1093,8 +987,7 @@ Producer::getContextOption(int optionName, ProducerDataCallback& optionValue)
 int
 Producer::getContextOption(int optionName, ProducerInterestCallback& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case INTEREST_ENTER_CNTX:
       optionValue = m_onInterestEntersContext;
       return OPTION_FOUND;
@@ -1159,11 +1052,9 @@ Producer::getContextOption(int optionName, ConsumerManifestCallback& optionValue
 int
 Producer::setContextOption(int optionName, size_t optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case RCV_BUF_SIZE:
-      if (m_receiveBufferCapacity >= 1)
-      {
+      if (m_receiveBufferCapacity >= 1) {
         m_receiveBufferCapacity = optionValue;
         return OPTION_VALUE_SET;
       }
@@ -1176,8 +1067,7 @@ Producer::setContextOption(int optionName, size_t optionValue)
 int
 Producer::getContextOption(int optionName, size_t& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case RCV_BUF_SIZE:
       optionValue = m_receiveBufferCapacity;
       return OPTION_FOUND;
@@ -1206,32 +1096,31 @@ Producer::getContextOption(int optionName, Exclude& optionValue)
 int
 Producer::getContextOption(int optionName, shared_ptr<Face>& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case FACE:
       optionValue = m_face;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 int
 Producer::getContextOption(int optionName, TreeNode& optionValue)
 {
-  switch (optionName)
-  {
+  switch (optionName) {
     case INFOMAX_ROOT:
       optionValue = m_infomaxRoot;
       return OPTION_FOUND;
 
-    default: return OPTION_NOT_FOUND;
+    default:
+      return OPTION_NOT_FOUND;
   }
 }
 
 void
-Producer::onStrategyChangeSuccess(const nfd::ControlParameters& commandSuccessResult,
-                                  const std::string& message)
+Producer::onStrategyChangeSuccess(const nfd::ControlParameters& commandSuccessResult, const std::string& message)
 {
 }
 

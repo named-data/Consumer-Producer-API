@@ -30,7 +30,7 @@
 
 // require C++11
 #if __cplusplus < 201103L && !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  error "ndn-cxx applications must be compiled using the C++11 standard"
+#error "ndn-cxx applications must be compiled using the C++11 standard"
 #endif
 
 #include <cstddef>
@@ -46,9 +46,9 @@
 #include <utility>
 
 #include <ndn-cxx/common.hpp>
-#include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/data.hpp>
 #include <ndn-cxx/face.hpp>
+#include <ndn-cxx/interest.hpp>
 
 /*#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
@@ -61,31 +61,31 @@
 #include <boost/tuple/tuple.hpp>
 */
 #if defined(__GNUC__) || defined(__clang__)
-#  define DEPRECATED(func) func __attribute__ ((deprecated))
+#define DEPRECATED(func) func __attribute__((deprecated))
 #elif defined(_MSC_VER)
-#  define DEPRECATED(func) __declspec(deprecated) func
+#define DEPRECATED(func) __declspec(deprecated) func
 #else
-#  pragma message("DEPRECATED not implemented")
-#  define DEPRECATED(func) func
+#pragma message("DEPRECATED not implemented")
+#define DEPRECATED(func) func
 #endif
 
 namespace ndn {
 
+using std::bad_weak_ptr;
+using std::enable_shared_from_this;
+using std::make_shared;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::weak_ptr;
-using std::bad_weak_ptr;
-using std::make_shared;
-using std::enable_shared_from_this;
 
-using std::static_pointer_cast;
-using std::dynamic_pointer_cast;
 using std::const_pointer_cast;
+using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 
-using std::function;
 using std::bind;
-using std::ref;
 using std::cref;
+using std::function;
+using std::ref;
 
 } // namespace ndn
 

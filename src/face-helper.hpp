@@ -29,12 +29,17 @@ namespace ndn {
 class FaceHelper
 {
 public:
-  static shared_ptr<Face> getFace();
+  static shared_ptr<Face>
+  getFace();
 
 private:
   FaceHelper(){};
   FaceHelper(const FaceHelper& helper){}; // copy constructor is private
-  FaceHelper& operator=(const FaceHelper& helper){return *this;}; // assignment operator is private
+  FaceHelper&
+  operator=(const FaceHelper& helper)
+  {
+    return *this;
+  }; // assignment operator is private
   static shared_ptr<Face> m_face;
 };
 

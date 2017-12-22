@@ -21,15 +21,13 @@
 
 #include "infomax-data-retrieval.hpp"
 
-using namespace std;
-
 namespace ndn {
 
 InfoMaxDataRetrieval::InfoMaxDataRetrieval(Context* context)
   : DataRetrievalProtocol(context)
-  , m_requestVersion (1)
-  , m_requestListNum (1)
-  , m_isInit (true)
+  , m_requestVersion(1)
+  , m_requestListNum(1)
+  , m_isInit(true)
 {
 }
 
@@ -69,8 +67,8 @@ InfoMaxDataRetrieval::processInfoMaxInitPayload(Consumer& c, const uint8_t* buff
   std::string content((char*)buffer, bufferSize);
 
   std::vector<std::string> metaInfo;
-  string buf;
-  stringstream ss(content);
+  std::string buf;
+  std::stringstream ss(content);
 
   while (ss >> buf)
     metaInfo.push_back(buf);
@@ -109,11 +107,10 @@ InfoMaxDataRetrieval::start()
 
     m_context->setContextOption(MUST_BE_FRESH_S, true);
     m_context->setContextOption(INTEREST_LEAVE_CNTX,
-        (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInitInterest, this, _1, _2));
-    m_context->setContextOption(DATA_ENTER_CNTX,
-        (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitData, this, _1, _2));
+                                (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInitInterest, this, _1, _2));
+    m_context->setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitData, this, _1, _2));
     m_context->setContextOption(CONTENT_RETRIEVED,
-        (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitPayload, this, _1, _2, _3));
+                                (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxInitPayload, this, _1, _2, _3));
 
     Name infomaxInitSuffix(INFOMAX_INTEREST_TAG);
     infomaxInitSuffix.append(Name(INFOMAX_META_INTEREST_TAG));
@@ -125,11 +122,10 @@ InfoMaxDataRetrieval::start()
     m_context->setContextOption(CONTENT_RETRIEVED, processPayload);
   }
 
-  if (m_infoMaxList.empty())
-  {
+  if (m_infoMaxList.empty()) {
     if (m_requestListNum > m_maxListNum) {
       // cout << "All data fetched" << endl;
-      return ;
+      return;
     }
 
     // If current list is empty, issue InfoMax interest to fetch new list
@@ -146,11 +142,10 @@ InfoMaxDataRetrieval::start()
 
     m_context->setContextOption(MUST_BE_FRESH_S, true);
     m_context->setContextOption(INTEREST_LEAVE_CNTX,
-        (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInterest, this, _1, _2));
-    m_context->setContextOption(DATA_ENTER_CNTX,
-        (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxData, this, _1, _2));
+                                (ConsumerInterestCallback)bind(&InfoMaxDataRetrieval::processLeavingInfoMaxInterest, this, _1, _2));
+    m_context->setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&InfoMaxDataRetrieval::processInfoMaxData, this, _1, _2));
     m_context->setContextOption(CONTENT_RETRIEVED,
-        (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxPayload, this, _1, _2, _3));
+                                (ConsumerContentCallback)bind(&InfoMaxDataRetrieval::processInfoMaxPayload, this, _1, _2, _3));
     m_context->setContextOption(SUFFIX, infomaxSuffix);
 
     m_context->setContextOption(RUNNING, false);
@@ -168,11 +163,11 @@ InfoMaxDataRetrieval::start()
 }
 
 void
-InfoMaxDataRetrieval::convertStringToList(string &names)
+InfoMaxDataRetrieval::convertStringToList(std::string& names)
 {
   m_infoMaxList.clear();
-  string buf;
-  stringstream ss(names);
+  std::string buf;
+  std::stringstream ss(names);
 
   while (ss >> buf)
     m_infoMaxList.push_back(make_shared<Name>(buf));

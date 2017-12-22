@@ -30,12 +30,12 @@ class InfoMaxDataRetrieval : public DataRetrievalProtocol
 {
 public:
   InfoMaxDataRetrieval(Context* context);
-  
+
   ~InfoMaxDataRetrieval();
-  
+
   void
   start();
-  
+
   void
   stop();
 
@@ -62,7 +62,7 @@ private:
   convertStringToList(std::string&);
 
 private:
-  std::list< shared_ptr<Name> > m_infoMaxList;
+  std::list<shared_ptr<Name>> m_infoMaxList;
   shared_ptr<ReliableDataRetrieval> m_rdr;
   uint64_t m_requestVersion;
   uint64_t m_requestListNum;

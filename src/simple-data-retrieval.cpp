@@ -91,42 +91,36 @@ SimpleDataRetrieval::onData(const ndn::Interest& interest, const ndn::Data& data
 
   ConsumerDataCallback onDataEnteredContext = EMPTY_CALLBACK;
   m_context->getContextOption(DATA_ENTER_CNTX, onDataEnteredContext);
-  if (onDataEnteredContext != EMPTY_CALLBACK)
-  {
+  if (onDataEnteredContext != EMPTY_CALLBACK) {
     onDataEnteredContext(*dynamic_cast<Consumer*>(m_context), data);
   }
 
   ConsumerInterestCallback onInterestSatisfied = EMPTY_CALLBACK;
   m_context->getContextOption(INTEREST_SATISFIED, onInterestSatisfied);
-  if (onInterestSatisfied != EMPTY_CALLBACK)
-  {
+  if (onInterestSatisfied != EMPTY_CALLBACK) {
     onInterestSatisfied(*dynamic_cast<Consumer*>(m_context), const_cast<Interest&>(interest));
   }
 
   ConsumerDataVerificationCallback onDataToVerify = EMPTY_CALLBACK;
   m_context->getContextOption(DATA_TO_VERIFY, onDataToVerify);
-  if (onDataToVerify != EMPTY_CALLBACK)
-  {
+  if (onDataToVerify != EMPTY_CALLBACK) {
     if (onDataToVerify(*dynamic_cast<Consumer*>(m_context), data) == true) // runs verification routine
     {
       const Block content = data.getContent();
 
       ConsumerContentCallback onPayload = EMPTY_CALLBACK;
       m_context->getContextOption(CONTENT_RETRIEVED, onPayload);
-      if (onPayload != EMPTY_CALLBACK)
-      {
+      if (onPayload != EMPTY_CALLBACK) {
         onPayload(*dynamic_cast<Consumer*>(m_context), content.value(), content.value_size());
       }
     }
   }
-  else
-  {
+  else {
     const Block content = data.getContent();
 
     ConsumerContentCallback onPayload = EMPTY_CALLBACK;
     m_context->getContextOption(CONTENT_RETRIEVED, onPayload);
-    if (onPayload != EMPTY_CALLBACK)
-    {
+    if (onPayload != EMPTY_CALLBACK) {
       onPayload(*dynamic_cast<Consumer*>(m_context), content.value(), content.value_size());
     }
   }

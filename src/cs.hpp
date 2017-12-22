@@ -25,11 +25,11 @@
 #include "common.hpp"
 #include "cs-entry.hpp"
 
+#include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/member.hpp>
-#include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index_container.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include <queue>
@@ -64,24 +64,19 @@ class unsolicited;
 class byStaleness;
 class byArrival;
 
-typedef boost::multi_index_container<
-  cs::Entry*,
-  boost::multi_index::indexed_by<
+typedef boost::multi_index_container<cs::Entry*,
+                                     boost::multi_index::indexed_by<
 
-    // by arrival (FIFO)
-    boost::multi_index::sequenced<
-      boost::multi_index::tag<byArrival>
-    >
-  >
-> CleanupIndex;
+                                       // by arrival (FIFO)
+                                       boost::multi_index::sequenced<boost::multi_index::tag<byArrival>>>>
+  CleanupIndex;
 
 /** \brief represents Content Store
  */
 class Cs : noncopyable
 {
 public:
-  explicit
-  Cs(int nMaxPackets = 65536); // ~500MB with average packet size = 8KB
+  explicit Cs(int nMaxPackets = 65536); // ~500MB with average packet size = 8KB
 
   ~Cs();
 
@@ -179,9 +174,7 @@ private:
    *  \return{ true if satisfies all selectors; false otherwise }
    */
   bool
-  doesComplyWithSelectors(const Interest& interest,
-                          cs::Entry* entry,
-                          bool doesInterestContainDigest) const;
+  doesComplyWithSelectors(const Interest& interest, cs::Entry* entry, bool doesInterestContainDigest) const;
 
   /** \brief interprets minSuffixComponent and name lengths to understand if Interest contains
    *  implicit digest of the data
@@ -194,16 +187,16 @@ private:
    */
   void
   printSkipList() const;
-  
+
 private:
   SkipList m_skipList;
   CleanupIndex m_cleanupIndex;
-  size_t m_nMaxPackets; // user defined maximum size of the Content Store in packets
-  size_t m_nPackets;    // current number of packets in Content Store
+  size_t m_nMaxPackets;                   // user defined maximum size of the Content Store in packets
+  size_t m_nPackets;                      // current number of packets in Content Store
   std::queue<cs::Entry*> m_freeCsEntries; // memory pool
   boost::mutex m_mutex;
 };
 
-} // namespace nfd
+} // namespace ndn
 
 #endif // NFD_TABLE_CS_HPP

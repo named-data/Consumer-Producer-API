@@ -33,7 +33,9 @@ namespace examples {
 class CallbackContainer
 {
 public:
-  CallbackContainer(){}
+  CallbackContainer()
+  {
+  }
 
   void
   processData(Consumer& c, const Data& data)
@@ -65,14 +67,11 @@ main(int argc, char** argv)
   Consumer c(sampleName, UDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
 
-  c.setContextOption(INTEREST_LEAVE_CNTX,
-          (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c.setContextOption(INTEREST_RETRANSMIT,
-          (ConsumerInterestCallback)bind(&CallbackContainer::retxInterest, &stubs, _1, _2));
+  c.setContextOption(INTEREST_RETRANSMIT, (ConsumerInterestCallback)bind(&CallbackContainer::retxInterest, &stubs, _1, _2));
 
-  c.setContextOption(DATA_ENTER_CNTX,
-          (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
   c.consume(Name());
 

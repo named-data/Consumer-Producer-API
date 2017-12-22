@@ -22,8 +22,8 @@
 #ifndef DATA_RETRIEVAL_PROTOCOL_HPP
 #define DATA_RETRIEVAL_PROTOCOL_HPP
 
-#include <ndn-cxx/util/scheduler.hpp>
 #include "context.hpp"
+#include <ndn-cxx/util/scheduler.hpp>
 
 namespace ndn {
 
@@ -33,17 +33,19 @@ class DataRetrievalProtocol
 {
 public:
   DataRetrievalProtocol(Context* context);
-  
-  void updateFace();
-  
-  bool isRunning();
-  
+
+  void
+  updateFace();
+
+  bool
+  isRunning();
+
   virtual void
   start() = 0;
-  
+
   virtual void
   stop() = 0;
-  
+
 protected:
   Context* m_context;
   shared_ptr<ndn::Face> m_face;

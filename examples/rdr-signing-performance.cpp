@@ -21,11 +21,11 @@
 
 // correct way to include Consumer/Producer API headers
 //#include <Consumer-Producer-API/producer-context.hpp>
-#include "producer-context.hpp"
 #include "consumer-context.hpp"
+#include "producer-context.hpp"
 
-#include <ndn-cxx/util/time.hpp>
 #include <ndn-cxx/security/signing-helpers.hpp>
+#include <ndn-cxx/util/time.hpp>
 
 #include <iostream>
 
@@ -34,19 +34,20 @@ namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
 namespace examples {
 
-#define CONTENT_LENGTH 1*1024*1024
+#define CONTENT_LENGTH 1 * 1024 * 1024
 #define IDENTITY_NAME "/sequence/performance"
 
 class Performance
 {
 public:
-  Performance(){}
+  Performance()
+  {
+  }
 
   void
   onNewSegment(Producer& p, Data& data)
   {
-    if (data.getName().get(-1).toSegment() == 0)
-    {
+    if (data.getName().get(-1).toSegment() == 0) {
       m_segmentationStart = time::system_clock::now();
     }
   }
@@ -78,8 +79,8 @@ class Signer
 {
 public:
   Signer()
-  : m_counter(0)
-  , m_identityName(IDENTITY_NAME)
+    : m_counter(0)
+    , m_identityName(IDENTITY_NAME)
   {
     m_keyChain.createIdentity(m_identityName);
   }
@@ -108,17 +109,13 @@ main(int argc, char** argv)
   Producer p(sampleName);
   p.setContextOption(SND_BUF_SIZE, 60000);
 
-  p.setContextOption(NEW_DATA_SEGMENT,
-                (ProducerDataCallback)bind(&Performance::onNewSegment, &performance, _1, _2));
+  p.setContextOption(NEW_DATA_SEGMENT, (ProducerDataCallback)bind(&Performance::onNewSegment, &performance, _1, _2));
 
-  p.setContextOption(DATA_TO_SECURE,
-                (ProducerDataCallback)bind(&Signer::onPacket, &signer, _1, _2));
+  p.setContextOption(DATA_TO_SECURE, (ProducerDataCallback)bind(&Signer::onPacket, &signer, _1, _2));
 
-  p.setContextOption(DATA_LEAVE_CNTX,
-                (ProducerDataCallback)bind(&Performance::onSegmentFinalized, &performance, _1, _2));
+  p.setContextOption(DATA_LEAVE_CNTX, (ProducerDataCallback)bind(&Performance::onSegmentFinalized, &performance, _1, _2));
 
-  p.setContextOption(INTEREST_ENTER_CNTX,
-                (ProducerInterestCallback)bind(&Performance::onInterest, &performance, _1, _2));
+  p.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&Performance::onInterest, &performance, _1, _2));
 
   p.attach();
 

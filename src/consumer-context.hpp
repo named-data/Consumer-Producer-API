@@ -22,17 +22,17 @@
 #ifndef CONSUMER_CONTEXT_HPP
 #define CONSUMER_CONTEXT_HPP
 
-#include "context.hpp"
-#include "context-options.hpp"
 #include "context-default-values.hpp"
+#include "context-options.hpp"
+#include "context.hpp"
 #include "data-retrieval-protocol.hpp"
+#include "infomax-data-retrieval.hpp"
+#include "reliable-data-retrieval.hpp"
 #include "simple-data-retrieval.hpp"
 #include "unreliable-data-retrieval.hpp"
-#include "reliable-data-retrieval.hpp"
-#include "infomax-data-retrieval.hpp"
 
-#include <ndn-cxx/util/config-file.hpp>
 #include <ndn-cxx/mgmt/nfd/controller.hpp>
+#include <ndn-cxx/util/config-file.hpp>
 
 namespace ndn {
 
@@ -72,7 +72,7 @@ public:
   consume(Name suffix);
 
 
-   /**
+  /**
    * @brief Performs transmission of Interest packets to fetch specified Application Data Unit (ADU).
    * async_consume() does not block the caller thread.
    *
@@ -137,7 +137,7 @@ public:
   int
   setContextOption(int optionName, Exclude optionValue);
 
-   /*
+  /*
    * Context option getters
    * Return OPTION_FOUND if success; otherwise -- OPTION_NOT_FOUND
    */
@@ -190,7 +190,6 @@ public:
   getContextOption(int optionName, TreeNode& optionValue);
 
 private:
-
   void
   postponedConsume(Name suffix);
 

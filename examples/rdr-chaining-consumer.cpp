@@ -33,7 +33,10 @@ namespace examples {
 class CallbackContainer
 {
 public:
-  CallbackContainer(){flag = false;}
+  CallbackContainer()
+  {
+    flag = false;
+  }
 
   void
   processPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
@@ -44,8 +47,7 @@ public:
     std::cout << "Size " << bufferSize << std::endl;
 
     // chaining call
-    if (!flag)
-    {
+    if (!flag) {
       flag = true;
       std::cout << "consume zzz" << std::endl;
       c.consume(Name("zzz"));
@@ -77,14 +79,11 @@ main(int argc, char** argv)
   Consumer c(sampleName, RDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
 
-  c.setContextOption(INTEREST_LEAVE_CNTX,
-        (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
+  c.setContextOption(INTEREST_LEAVE_CNTX, (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
 
-  c.setContextOption(DATA_ENTER_CNTX,
-                    (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
+  c.setContextOption(DATA_ENTER_CNTX, (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
 
-  c.setContextOption(CONTENT_RETRIEVED,
-              (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
+  c.setContextOption(CONTENT_RETRIEVED, (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
 
   c.consume(Name("z"));
 

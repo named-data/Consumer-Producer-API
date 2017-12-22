@@ -23,28 +23,27 @@
 #define PRODUCER_CONTEXT_HPP
 
 #include "common.hpp"
-#include "context-options.hpp"
 #include "context-default-values.hpp"
+#include "context-options.hpp"
 #include "context.hpp"
 #include "cs.hpp"
-#include "repo-command-parameter.hpp"
-#include "infomax-tree-node.hpp"
 #include "infomax-prioritizer.hpp"
+#include "infomax-tree-node.hpp"
+#include "repo-command-parameter.hpp"
 
-#include <ndn-cxx/signature.hpp>
-#include <ndn-cxx/security/key-chain.hpp>
 #include <ndn-cxx/mgmt/nfd/controller.hpp>
+#include <ndn-cxx/security/key-chain.hpp>
+#include <ndn-cxx/signature.hpp>
 #include <ndn-cxx/util/scheduler.hpp>
 
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/asio.hpp>
 
 #include <queue>
-#include <time.h>   // for nanosleep
+#include <time.h> // for nanosleep
 
 namespace ndn {
 class Prioritizer;
@@ -167,7 +166,7 @@ public:
   int
   setContextOption(int optionName, Exclude optionValue);
 
-   /*
+  /*
    * Context option getters
    */
 
@@ -247,7 +246,7 @@ private:
   bool m_isNewInfomaxData;
   TreeNode m_infomaxRoot;
   shared_ptr<Prioritizer> m_infomaxPrioritizer;
-  int m_infomaxType;  // currently there are only 2 types: normal and InfoMax producer
+  int m_infomaxType; // currently there are only 2 types: normal and InfoMax producer
 
   int m_signatureType;
   int m_signatureSize;
@@ -259,7 +258,7 @@ private:
   Cs m_sendBuffer;
 
   //boost::lockfree::queue<shared_ptr<const Interest> >m_receiveBuffer{DEFAULT_PRODUCER_RCV_BUFFER_SIZE};
-  std::queue< shared_ptr<const Interest> > m_receiveBuffer;
+  std::queue<shared_ptr<const Interest>> m_receiveBuffer;
   boost::mutex m_receiveBufferMutex;
   boost::atomic_size_t m_receiveBufferCapacity;
   boost::atomic_size_t m_receiveBufferSize;
@@ -292,13 +291,12 @@ private:
   onInterest(const Name& name, const Interest& interest);
 
   void
-  onRegistrationSucceded (const ndn::Name& prefix);
+  onRegistrationSucceded(const ndn::Name& prefix);
 
   void
-  onRegistrationFailed (const ndn::Name& prefix, const std::string& reason);
+  onRegistrationFailed(const ndn::Name& prefix, const std::string& reason);
 
-  void
-  processIncomingInterest(/*const Name& name, const Interest& interest*/);
+  void processIncomingInterest(/*const Name& name, const Interest& interest*/);
 
   void
   processInterestFromReceiveBuffer();
@@ -322,8 +320,7 @@ private:
   onRepoTimeout(const ndn::Interest& interest);
 
   void
-  onStrategyChangeSuccess(const nfd::ControlParameters& commandSuccessResult,
-                          const std::string& message);
+  onStrategyChangeSuccess(const nfd::ControlParameters& commandSuccessResult, const std::string& message);
 
   void
   onStrategyChangeError(const nfd::ControlResponse& response, const std::string& message);

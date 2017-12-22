@@ -53,13 +53,11 @@ main(int argc, char** argv)
   CallbackContainer c;
 
   Producer p1(sampleName);
-  p1.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP1, &c, _1, _2));
+  p1.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP1, &c, _1, _2));
   p1.attach();
 
   Producer p2(sampleName);
-  p2.setContextOption(INTEREST_ENTER_CNTX,
-                    (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
+  p2.setContextOption(INTEREST_ENTER_CNTX, (ProducerInterestCallback)bind(&CallbackContainer::onP2, &c, _1, _2));
   p2.attach();
 
   sleep(300);
