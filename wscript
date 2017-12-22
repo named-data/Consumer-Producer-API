@@ -8,36 +8,30 @@ APPNAME = 'consumerproducer'
 
 def options(opt):
     opt.load(['compiler_c', 'compiler_cxx', 'gnu_dirs'])
-    opt.load(['boost', 'doxygen', 'sphinx_build', 'default-compiler-flags',
-              'pch'],
+    opt.load(['boost', 'default-compiler-flags', 'coverage', 'sanitizers'],
              tooldir=['.waf-tools'])
 
     syncopt = opt.add_option_group ("Consumer-Producer-API Options")
-
-    syncopt.add_option('--debug', action='store_true', default=False, dest='debug',
-                       help='''debugging mode''')
-    syncopt.add_option('--with-log4cxx', action='store_true', default=False, dest='log4cxx',
-                       help='''Compile with log4cxx''')
     syncopt.add_option('--with-examples', action='store_true', default=False, dest='_examples',
                        help='''build examples''')
 
 def configure(conf):
-    conf.load(['compiler_c', 'compiler_cxx', 'gnu_dirs', 'boost', 'pch',
-               'doxygen', 'sphinx_build', 'default-compiler-flags'])
+    conf.load(['compiler_cxx', 'gnu_dirs', 'boost', 'default-compiler-flags'])
 
     conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'],
                    uselib_store='NDN_CXX', mandatory=True)
 
     boost_libs = 'system thread iostreams'
+    conf.check_boost(lib=boost_libs, mt=True)
+
     if conf.options._examples:
         conf.env['Consumer_Producer_API_HAVE_EXAMPLES'] = 1
         conf.define('Consumer_Producer_API_HAVE_EXAMPLES', 1);
 
-    conf.check_boost(lib=boost_libs)
+    # Loading "late" to prevent tests to be compiled with profiling flags
+    conf.load('coverage')
 
-    if conf.options.log4cxx:
-        conf.check_cfg(package='liblog4cxx', args=['--cflags', '--libs'], uselib_store='LOG4CXX',
-                       mandatory=True)
+    conf.load('sanitizers')
 
     conf.write_config_header('config.hpp')
 
