@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -20,8 +20,10 @@
  */
 
 #include "cs.hpp"
-#include <ndn-cxx/util/crypto.hpp>
-#include <ndn-cxx/security/signature-sha256-with-rsa.hpp>
+
+#include <ndn-cxx/util/sha256.hpp>
+
+#include <iostream>
 
 #define SKIPLIST_MAX_LAYERS 32
 #define SKIPLIST_PROBABILITY 25         // 25% (p = 1/4)
@@ -71,17 +73,17 @@ Cs::setLimit(size_t nMaxPackets)
       if (!evictItem())
         break;
     }
-    
-  if (m_nMaxPackets >= oldNMaxPackets) 
+
+  if (m_nMaxPackets >= oldNMaxPackets)
     {
-      for (size_t i = oldNMaxPackets; i < m_nMaxPackets; i++) 
+      for (size_t i = oldNMaxPackets; i < m_nMaxPackets; i++)
         {
           m_freeCsEntries.push(new cs::Entry());
         }
     }
-  else 
+  else
     {
-      for (size_t i = oldNMaxPackets; i > m_nMaxPackets; i--) 
+      for (size_t i = oldNMaxPackets; i > m_nMaxPackets; i--)
       {
         delete m_freeCsEntries.front();
         m_freeCsEntries.pop();
@@ -101,7 +103,7 @@ Cs::insertToSkipList(const Data& data, bool isUnsolicited)
 {
   BOOST_ASSERT(m_cleanupIndex.size() <= size());
   BOOST_ASSERT(m_freeCsEntries.size() > 0);
-  
+
   m_mutex.lock();
 
   // take entry for the memory pool
@@ -230,7 +232,7 @@ Cs::insertToSkipList(const Data& data, bool isUnsolicited)
 
 bool
 Cs::insert(const Data& data, bool isUnsolicited)
-{  
+{
   if (isFull())
     {
       evictItem();
@@ -341,7 +343,7 @@ const Data*
 Cs::find(const Interest& interest)
 {
   m_mutex.lock();
-  
+
   bool isIterated = false;
   SkipList::const_reverse_iterator topLayer = m_skipList.rbegin();
   SkipListLayer::iterator head = (*topLayer)->begin();
@@ -491,7 +493,7 @@ Cs::selectChild(const Interest& interest, SkipListLayer::iterator startingPoint)
                           // (without digest)
                           const Name& childPrefix = (*rightmostCandidate)->getName()
                                                       .getPrefix(interest.getName().size());
-                          
+
                           if (currentChildPrefix.empty() || (childPrefix != currentChildPrefix))
                             {
                               currentChildPrefix = childPrefix;
@@ -503,7 +505,7 @@ Cs::selectChild(const Interest& interest, SkipListLayer::iterator startingPoint)
                           // get prefix which is one component longer than Interest name
                           const Name& childPrefix = (*rightmostCandidate)->getName()
                                                       .getPrefix(interest.getName().size() + 1);
-                          
+
                           if (currentChildPrefix.empty() || (childPrefix != currentChildPrefix))
                             {
                               currentChildPrefix = childPrefix;
@@ -565,12 +567,11 @@ Cs::doesComplyWithSelectors(const Interest& interest,
       const ndn::ConstBufferPtr& digest = entry->getDigest();
 
       BOOST_ASSERT(digest->size() == last.value_size());
-      BOOST_ASSERT(digest->size() == ndn::crypto::SHA256_DIGEST_SIZE);
+      BOOST_ASSERT(digest->size() == ndn::util::Sha256::DIGEST_SIZE);
 
-      if (std::memcmp(digest->buf(), last.value(), ndn::crypto::SHA256_DIGEST_SIZE) != 0)
-        {
-          return false;
-        }
+      if (std::memcmp(digest->data(), last.value(), ndn::util::Sha256::DIGEST_SIZE) != 0) {
+        return false;
+      }
     }
 
   if (!doesInterestContainDigest)
@@ -598,21 +599,16 @@ Cs::doesComplyWithSelectors(const Interest& interest,
         }
     }
 
-  if (!interest.getPublisherPublicKeyLocator().empty())
-    {
-      if (entry->getData().getSignature().getType() == ndn::Signature::Sha256WithRsa)
-        {
-          ndn::SignatureSha256WithRsa rsaSignature(entry->getData().getSignature());
-          if (rsaSignature.getKeyLocator() != interest.getPublisherPublicKeyLocator())
-            {
-              return false;
-            }
-        }
-      else
-        {
-          return false;
-        }
+  if (!interest.getPublisherPublicKeyLocator().empty()) {
+    if (entry->getData().getSignature().hasKeyLocator()) {
+      if (entry->getData().getSignature().getKeyLocator() != interest.getPublisherPublicKeyLocator()) {
+        return false;
+      }
     }
+    else {
+      return false;
+    }
+  }
 
   if (doesInterestContainDigest)
     {
@@ -654,10 +650,9 @@ Cs::recognizeInterestWithDigest(const Interest& interest, cs::Entry* entry) cons
       interest.getName().size() == (entry->getName().size()))
     {
       const ndn::name::Component& last = interest.getName().get(-1);
-      if (last.value_size() == ndn::crypto::SHA256_DIGEST_SIZE)
-        {
-          return true;
-        }
+      if (last.value_size() == ndn::util::Sha256::DIGEST_SIZE) {
+        return true;
+      }
     }
 
   return false;
@@ -667,7 +662,7 @@ void
 Cs::erase(const Name& exactName)
 {
   m_mutex.lock();
-  
+
   bool isIterated = false;
   SkipListLayer::iterator updateTable[SKIPLIST_MAX_LAYERS];
   SkipList::reverse_iterator topLayer = m_skipList.rbegin();

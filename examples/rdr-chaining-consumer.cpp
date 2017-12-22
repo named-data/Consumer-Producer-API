@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -23,6 +23,8 @@
 //#include <Consumer-Producer-API/consumer-context.hpp>
 #include "consumer-context.hpp"
 
+#include <iostream>
+
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
@@ -32,15 +34,15 @@ class CallbackContainer
 {
 public:
   CallbackContainer(){flag = false;}
-  
+
   void
   processPayload(Consumer& c, const uint8_t* buffer, size_t bufferSize)
   {
     std::string content1((char*)buffer, bufferSize);
-    
+
     std::cout << "REASSEMBLED " << content1 << std::endl;
     std::cout << "Size " << bufferSize << std::endl;
-    
+
     // chaining call
     if (!flag)
     {
@@ -49,19 +51,19 @@ public:
       c.consume(Name("zzz"));
     }
   }
-  
+
   void
   processData(Consumer& c, const Data& data)
   {
     std::cout << "DATA IN CNTX" << std::endl;
   }
-  
+
   void
   processLeavingInterest(Consumer& c, Interest& interest)
   {
     std::cout << "LEAVES " << interest.toUri() << std::endl;
-  }  
-  
+  }
+
   bool flag;
 };
 
@@ -69,23 +71,23 @@ int
 main(int argc, char** argv)
 {
   Name sampleName("/x/y");
-      
+
   CallbackContainer stubs;
 
   Consumer c(sampleName, RDR);
   c.setContextOption(MUST_BE_FRESH_S, true);
-    
-  c.setContextOption(INTEREST_LEAVE_CNTX, 
+
+  c.setContextOption(INTEREST_LEAVE_CNTX,
         (ConsumerInterestCallback)bind(&CallbackContainer::processLeavingInterest, &stubs, _1, _2));
-  
-  c.setContextOption(DATA_ENTER_CNTX, 
+
+  c.setContextOption(DATA_ENTER_CNTX,
                     (ConsumerDataCallback)bind(&CallbackContainer::processData, &stubs, _1, _2));
-  
-  c.setContextOption(CONTENT_RETRIEVED, 
+
+  c.setContextOption(CONTENT_RETRIEVED,
               (ConsumerContentCallback)bind(&CallbackContainer::processPayload, &stubs, _1, _2, _3));
-  
+
   c.consume(Name("z"));
-  
+
 
   return 0;
 }

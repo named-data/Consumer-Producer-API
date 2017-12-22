@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -23,8 +23,10 @@
 //#include <Consumer-Producer-API/producer-context.hpp>
 #include "producer-context.hpp"
 #include "consumer-context.hpp"
+
 #include <ndn-cxx/util/time.hpp>
-#include <ndn-cxx/security/validator.hpp>
+
+#include <iostream>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -38,23 +40,23 @@ int
 main(int argc, char** argv)
 {
   Name sampleName("/a/b/c");
-  
+
   Producer p(sampleName);
   p.setContextOption(SND_BUF_SIZE, 60000);
-                
+
   p.attach();
-    
+
   uint8_t* content = new uint8_t[CONTENT_LENGTH];
-  
+
   for (uint64_t i = 0; i <= 1000; i++)
   {
     Name n;
     n.append(name::Component::fromNumber(i));
     p.produce(n, content, CONTENT_LENGTH);
   }
-    
+
   sleep(500);
-  
+
   return 0;
 }
 

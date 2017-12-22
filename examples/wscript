@@ -5,7 +5,7 @@ top = '..'
 def build(bld):
     # List all .cpp files (whole example should be in one .cpp)
     for i in bld.path.ant_glob(['*.cpp']):
-        name = str(i)[:-len(".cpp")]
+        name = i.path_from(bld.path)[:-len(".cpp")]
         bld(features=['cxx', 'cxxprogram'],
             target=name,
             source=[i] + bld.path.ant_glob(['%s/**/*.cpp' % name]),
@@ -14,7 +14,8 @@ def build(bld):
             )
 
     # List all directories files (example can has multiple .cpp in the directory)
-    for name in bld.path.ant_glob(['*'], dir=True, src=False):
+    for i in bld.path.ant_glob(['*'], dir=True, src=False):
+        name = i.path_from(bld.path)
         bld(features=['cxx', 'cxxprogram'],
             target="%s/%s" % (name, name),
             source=bld.path.ant_glob(['%s/**/*.cpp' % name]),

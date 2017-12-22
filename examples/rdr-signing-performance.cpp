@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -23,8 +23,11 @@
 //#include <Consumer-Producer-API/producer-context.hpp>
 #include "producer-context.hpp"
 #include "consumer-context.hpp"
+
 #include <ndn-cxx/util/time.hpp>
-#include <ndn-cxx/security/validator.hpp>
+#include <ndn-cxx/security/signing-helpers.hpp>
+
+#include <iostream>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -38,7 +41,7 @@ class Performance
 {
 public:
   Performance(){}
-  
+
   void
   onNewSegment(Producer& p, Data& data)
   {
@@ -47,7 +50,7 @@ public:
       m_segmentationStart = time::system_clock::now();
     }
   }
-  
+
   void
   onSegmentFinalized(Producer& p, Data& data)
   {
@@ -59,13 +62,13 @@ public:
   {
     return m_segmentationStop - m_segmentationStart;
   }
-  
+
   void
   onInterest(Producer& p, const Interest& interest)
   {
     std::cout << "Entering " << interest.toUri() << std::endl;
   }
-  
+
 private:
   time::system_clock::TimePoint m_segmentationStart;
   time::system_clock::TimePoint m_segmentationStop;
@@ -80,14 +83,14 @@ public:
   {
     m_keyChain.createIdentity(m_identityName);
   }
-  
+
   void
   onPacket(Producer& p, Data& data)
   {
     m_counter++;
-    m_keyChain.signByIdentity(data, m_identityName);
+    m_keyChain.sign(data, signingByIdentity(m_identityName));
   }
-  
+
 private:
   KeyChain m_keyChain;
   int m_counter;
@@ -99,34 +102,34 @@ main(int argc, char** argv)
 {
   Signer signer;
   Performance performance;
-    
+
   Name sampleName("/a/b/c");
-  
+
   Producer p(sampleName);
   p.setContextOption(SND_BUF_SIZE, 60000);
-    
+
   p.setContextOption(NEW_DATA_SEGMENT,
                 (ProducerDataCallback)bind(&Performance::onNewSegment, &performance, _1, _2));
-                      
+
   p.setContextOption(DATA_TO_SECURE,
                 (ProducerDataCallback)bind(&Signer::onPacket, &signer, _1, _2));
-                      
+
   p.setContextOption(DATA_LEAVE_CNTX,
                 (ProducerDataCallback)bind(&Performance::onSegmentFinalized, &performance, _1, _2));
-  
+
   p.setContextOption(INTEREST_ENTER_CNTX,
                 (ProducerInterestCallback)bind(&Performance::onInterest, &performance, _1, _2));
-                
+
   p.attach();
-    
+
   uint8_t* content = new uint8_t[CONTENT_LENGTH];
   p.produce(Name(), content, CONTENT_LENGTH);
-    
+
   std::cout << "**************************************************************" << std::endl;
   std::cout << "Sequence segmentation duration " << performance.getSegmentationDuration() << std::endl;
-    
+
   sleep(500);
-  
+
   return 0;
 }
 

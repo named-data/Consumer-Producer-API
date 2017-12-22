@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -18,11 +18,21 @@
  *
  * See AUTHORS.md for complete list of Consumer/Producer API authors and contributors.
  */
- 
+
 #include "application-nack.hpp"
- 
+
 namespace ndn {
- 
+
+// BOOST_CONCEPT_ASSERT((WireEncodable<ApplicationNack>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<ApplicationNack>));
+// BOOST_CONCEPT_ASSERT((WireDecodable<ApplicationNack>));
+static_assert(std::is_base_of<tlv::Error, ApplicationNack::Error>::value,
+              "ApplicationNack::Error must inherit from tlv::Error");
+
+// NACK Headers
+const std::string STATUS_CODE_H = "Status-code";
+const std::string RETRY_AFTER_H = "Retry-after";
+
 ApplicationNack::ApplicationNack()
 {
   setContentType(tlv::ContentType_Nack);
@@ -47,7 +57,8 @@ ApplicationNack::ApplicationNack(const Data& data)
 }
 
 ApplicationNack::~ApplicationNack()
-{}
+{
+}
 
 void
 ApplicationNack::addKeyValuePair(const uint8_t* key, size_t keySize, const uint8_t* value, size_t valueSize)
@@ -56,7 +67,7 @@ ApplicationNack::addKeyValuePair(const uint8_t* key, size_t keySize, const uint8
   std::string valueS(reinterpret_cast<const char*>(value), valueSize);
   addKeyValuePair(keyS, valueS);
 }
-  
+
 void
 ApplicationNack::addKeyValuePair(std::string key, std::string value)
 {
@@ -67,7 +78,7 @@ std::string
 ApplicationNack::getValueByKey(std::string key)
 {
   std::map<std::string,std::string>::const_iterator it = m_keyValuePairs.find(key);
-  
+
   if (it == m_keyValuePairs.end())
   {
     return "";
@@ -84,7 +95,6 @@ ApplicationNack::eraseValueByKey(std::string key)
   m_keyValuePairs.erase(m_keyValuePairs.find(key));
 }
 
-
 void
 ApplicationNack::setCode(ApplicationNack::NackCode statusCode)
 {
@@ -98,17 +108,17 @@ ApplicationNack::NackCode
 ApplicationNack::getCode()
 {
   std::string value = getValueByKey(STATUS_CODE_H);
-  
+
   if (value != "")
   {
-    try 
+    try
     {
       return (ApplicationNack::NackCode)atoi(value.c_str());
     }
     catch(std::exception e)
     {
       return ApplicationNack::NONE;
-    } 
+    }
   }
   else
   {
@@ -132,32 +142,27 @@ ApplicationNack::getDelay()
   return atoi(value.c_str());
 }
 
-template<bool T>
+template<encoding::Tag TAG>
 size_t
-ApplicationNack::wireEncode(EncodingImpl<T>& blk) const
+ApplicationNack::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   // Nack ::= CONTENT-TLV TLV-LENGTH
   //            KeyValuePair*
 
   size_t totalLength = 0;
-  
+
   for (std::map<std::string, std::string>::const_reverse_iterator it = m_keyValuePairs.rbegin();
-                                it != m_keyValuePairs.rend(); ++it)
-  {
-    std::string keyValue = it->first + "=" + it->second;    
-    totalLength += blk.prependByteArray(reinterpret_cast<const uint8_t*>(keyValue.c_str()), keyValue.size());
-    totalLength += blk.prependVarNumber(keyValue.size());
-    totalLength += blk.prependVarNumber(tlv::KeyValuePair);
+       it != m_keyValuePairs.rend(); ++it) {
+    std::string keyValue = it->first + "=" + it->second;
+    totalLength += encoder.prependByteArray(reinterpret_cast<const uint8_t*>(keyValue.c_str()), keyValue.size());
+    totalLength += encoder.prependVarNumber(keyValue.size());
+    totalLength += encoder.prependVarNumber(tlv::KeyValuePair);
   }
 
   return totalLength;
 }
 
-template size_t
-ApplicationNack::wireEncode<true>(EncodingImpl<true>& block) const;
-
-template size_t
-ApplicationNack::wireEncode<false>(EncodingImpl<false>& block) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(ApplicationNack);
 
 void
 ApplicationNack::encode()
@@ -167,9 +172,9 @@ ApplicationNack::encode()
 
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
-  
+
   setContentType(tlv::ContentType_Nack);
-  setContent(const_cast<uint8_t*>(buffer.buf()), buffer.size());  
+  setContent(const_cast<uint8_t*>(buffer.buf()), buffer.size());
 }
 
 void
@@ -177,21 +182,18 @@ ApplicationNack::decode()
 {
   Block content = getContent();
   content.parse();
-   
+
   // Nack ::= CONTENT-TLV TLV-LENGTH
   //                KeyValuePair*
-  
-  for ( Block::element_const_iterator val = content.elements_begin(); 
-                                      val != content.elements_end(); ++val)
-  {
-    if (val->type() == tlv::KeyValuePair)
-    {
-      std::string str((char*)val->value(), val->value_size());
-      
+
+  for (const auto& val : content.elements()) {
+    if (val.type() == tlv::KeyValuePair) {
+      std::string str(reinterpret_cast<const char*>(val.value()), val.value_size());
+
       size_t index = str.find_first_of('=');
       if (index == std::string::npos || index == 0 || (index == str.size() - 1))
         continue;
-      
+
       std::string key = str.substr(0, index);
       std::string value = str.substr(index + 1, str.size() - index - 1);
       addKeyValuePair(key, value);
@@ -199,4 +201,4 @@ ApplicationNack::decode()
   }
 }
 
-} // namespace ndn 
+} // namespace ndn

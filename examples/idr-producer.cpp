@@ -1,11 +1,11 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2014-2017 Regents of the University of California.
  *
  * This file is part of Consumer/Producer API library.
  *
- * Consumer/Producer API library library is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License as published by the Free 
+ * Consumer/Producer API library library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Consumer/Producer API library is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -23,6 +23,8 @@
 //#include <Consumer-Producer-API/producer-context.hpp>
 #include "producer-context.hpp"
 
+#include <iostream>
+
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
 // Additional nested namespace could be used to prevent/limit name contentions
@@ -34,7 +36,7 @@ public:
   CallbackContainer()
   {
   }
-  
+
   void
   onPacket(Producer& p, Data& data)
   {
@@ -57,17 +59,17 @@ main(int argc, char** argv)
   Producer *p = new Producer(sampleName);
   p->setContextOption(DATA_LEAVE_CNTX,
                 (ProducerDataCallback)bind(&CallbackContainer::onPacket, &cb, _1, _2));
-                
+
   p->setContextOption(INFOMAX, true);
   p->setContextOption(INFOMAX_PRIORITY, INFOMAX_SIMPLE_PRIORITY);  // generate only lists for the root node
   // p->setContextOption(INFOMAX_PRIORITY, INFOMAX_MERGE_PRIORITY);  // generate lists for all sub-trees
   // p->setContextOption(INFOMAX_UPDATE_INTERVAL, 10000);
 
-  p->attach();  
+  p->attach();
 
   std::string ac = "a/c-content";
   p->produce(Name("a/c"), (uint8_t*)ac.c_str(), ac.size());
-  
+
   std::string bd = "a/d-content";
   p->produce(Name("a/d"), (uint8_t*)bd.c_str(), bd.size());
 
@@ -78,10 +80,10 @@ main(int argc, char** argv)
   p->produce(Name("c/f"), (uint8_t*)cf.c_str(), cf.size());
 
   std::string ag = "a/g-content";
-  p->produce(Name("a/g"), (uint8_t*)ag.c_str(), ag.size());  
+  p->produce(Name("a/g"), (uint8_t*)ag.c_str(), ag.size());
 
   sleep(300);
-  
+
   return 0;
 }
 
